@@ -1,256 +1,685 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Youssuf | مهندس ذكاء اصطناعي</title>
+    <title>fekro® | Enterprise Workspace</title>
+    
+    <meta property="og:title" content="fekro® | Enterprise Workspace">
+    <meta property="og:description" content="Official Management Portal for fekro Design Agency.">
+    <meta property="og:type" content="website">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+        /* --- Design System & Variables --- */
+        :root[data-theme="dark"] {
+            --bg-main: #0a0a0a;
+            --bg-card: rgba(20, 20, 20, 0.6);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --accent: #ff003c;
+            --accent-glow: rgba(255, 0, 60, 0.4);
+            --glass-bg: rgba(15, 15, 15, 0.7);
+            --shadow: rgba(0, 0, 0, 0.7);
+        }
+
+        :root[data-theme="light"] {
+            --bg-main: #f5f5f7;
+            --bg-card: rgba(255, 255, 255, 0.7);
+            --border-color: rgba(0, 0, 0, 0.08);
+            --text-main: #1d1d1f;
+            --text-muted: #6e6e73;
+            --accent: #ff003c;
+            --accent-glow: rgba(255, 0, 60, 0.2);
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --shadow: rgba(0, 0, 0, 0.05);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            overflow-x: hidden;
             min-height: 100vh;
-            color: #fff;
-            padding: 20px;
         }
 
-        .container {
-            max-width: 480px;
-            margin: 0 auto;
-        }
-
-        .profile-card {
-            text-align: center;
-            padding: 40px 20px;
-            margin-bottom: 20px;
-        }
-
-        .profile-image {
-            width: 140px;
-            height: 140px;
-            margin: 0 auto 25px;
-            border-radius: 50%;
-            overflow: hidden;
-            border: 4px solid #6366f1;
-            box-shadow: 0 0 40px rgba(99, 102, 241, 0.5);
-            background: #1e1e2f;
-        }
-
-        .profile-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .name {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            background: linear-gradient(90deg, #fff, #a5b4fc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .title {
-            font-size: 16px;
-            color: #818cf8;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-
-        .location {
-            color: #94a3b8;
-            font-size: 14px;
-            margin-bottom: 20px;
-        }
-
-        .location i {
-            margin-left: 5px;
-            color: #6366f1;
-        }
-
-        .bio {
-            color: #cbd5e1;
-            font-size: 15px;
-            line-height: 1.8;
-            padding: 0 10px;
-        }
-
-        .links-section {
-            padding: 0 10px;
-        }
-
-        .links-section h2 {
-            text-align: center;
-            margin-bottom: 25px;
-            font-size: 18px;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .link-card {
-            display: flex;
-            align-items: center;
-            padding: 18px 22px;
-            margin-bottom: 15px;
-            background: rgba(255, 255, 255, 0.05);
+        /* --- Glassmorphic Layout --- */
+        .glass-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
             border-radius: 16px;
-            text-decoration: none;
-            color: #fff;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            position: relative;
-            overflow: hidden;
+            box-shadow: 0 8px 32px 0 var(--shadow);
         }
 
-        .link-card:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        /* --- Navigation Bar --- */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .link-card i {
-            font-size: 28px;
-            width: 50px;
-            height: 50px;
+        /* --- 3D Logo Engine --- */
+        .logo-container {
             display: flex;
             align-items: center;
-            justify-content: center;
-            border-radius: 12px;
-            margin-left: 15px;
+            gap: 10px;
+            perspective: 1000px;
         }
 
-        .link-info {
+        .dynamic-logo {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
+            transform-style: preserve-3d;
+            transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), filter 0.3s ease;
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));
+        }
+
+        .logo-container:hover .dynamic-logo {
+            transform: rotateY(15deg) rotateX(10deg) translateZ(10px);
+            filter: drop-shadow(-5px 8px 12px var(--accent-glow));
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .logo-text span {
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .nav-controls {
             display: flex;
-            flex-direction: column;
+            gap: 15px;
+            align-items: center;
         }
 
-        .link-name {
-            font-size: 17px;
+        .btn-icon, .btn-prime {
+            background: var(--glass-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
             font-weight: 600;
-            margin-bottom: 3px;
         }
 
-        .link-hint {
-            font-size: 13px;
-            color: #94a3b8;
+        .btn-icon:hover, .btn-prime:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 12px var(--accent-glow);
         }
 
-        .whatsapp i {
-            background: #25D366;
+        .btn-prime {
+            background: var(--accent);
             color: #fff;
+            border: none;
         }
 
-        .whatsapp:hover {
-            background: rgba(37, 211, 102, 0.15);
-            border-color: #25D366;
+        /* --- View Management --- */
+        .view-section {
+            display: none;
+            padding-top: 100px;
+            min-height: 100vh;
+            animation: fadeIn 0.5s ease-in-out forwards;
         }
 
-        .email i {
-            background: #EA4335;
-            color: #fff;
-        }
-
-        .email:hover {
-            background: rgba(234, 67, 53, 0.15);
-            border-color: #EA4335;
-        }
-
-        footer {
-            text-align: center;
-            padding: 30px 20px;
-            color: #64748b;
-            font-size: 13px;
+        .view-section.active {
+            display: block;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .profile-card, .links-section {
-            animation: fadeIn 0.6s ease;
+        /* --- Landing Page --- */
+        .hero {
+            text-align: center;
+            padding: 6rem 2rem 4rem;
+            max-width: 800px;
+            margin: 0 auto;
         }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 800;
+        }
+
+        .hero p {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .card i {
+            font-size: 2.5rem;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+        }
+
+        /* --- Admin Portal Structure --- */
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .admin-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 1.5rem;
+            height: fit-content;
+        }
+
+        .sidebar-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 12px 15px;
+            text-align: left;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        body[dir="rtl"] .sidebar-btn {
+            text-align: right;
+        }
+
+        .sidebar-btn.active, .sidebar-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .admin-tab-content {
+            display: none;
+        }
+
+        .admin-tab-content.active {
+            display: block;
+        }
+
+        /* --- Forms & Controls --- */
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 8px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* --- Tasks Matrix Layout --- */
+        .matrix-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .day-column {
+            padding: 1rem;
+            min-height: 300px;
+        }
+
+        .day-title {
+            font-weight: 700;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 5px;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .task-item {
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .task-item .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: transparent;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+        }
+
+        body[dir="rtl"] .task-item .delete-btn {
+            right: auto;
+            left: 5px;
+        }
+
+        .assignee-badge {
+            display: inline-block;
+            background: rgba(255, 0, 60, 0.1);
+            color: var(--accent);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+
+        /* --- Financial Ledger --- */
+        .ledger-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-card {
+            padding: 1.5rem;
+            text-align: center;
+            border-radius: 12px;
+        }
+
+        .summary-card.profit { color: #00ff66; border: 1px solid rgba(0,255,102,0.3); }
+        .summary-card.expense { color: #ff3333; border: 1px solid rgba(255,51,51,0.3); }
+
+        .ledger-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .ledger-table th, .ledger-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        body[dir="rtl"] .ledger-table th, body[dir="rtl"] .ledger-table td {
+            text-align: right;
+        }
+
+        /* --- Auth Modal --- */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            padding: 2.5rem;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* --- Multi-language support --- */
+        [data-lang="en"] .lang-ar, [data-lang="ar"] .lang-en { display: none; }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="profile-card">
-            <div class="profile-image">
-                <img src="profile.jpg" alt="Youssuf" id="profile-img">
-            </div>
-            <h1 class="name">Youssuf</h1>
-            <p class="title">Automation AI & AI Developer/Solutions Architect</p>
-            <div class="location">
-                <i class="fas fa-map-marker-alt"></i>
-                <span>القاهرة، مصر</span>
-            </div>
-            <p class="bio">
-                مهندس متخصص في أتمتة العمليات بالذكاء الاصطناعي، أصمم حلول ذكية لتحويل الأعمال التقليدية لأنظمة ذكية متكاملة. خبرة في بناء معماريات الذكاء الاصطناعي وتطوير حلول المؤسسات.
-            </p>
+<body data-lang="en" dir="ltr">
+
+    <header class="glass-panel">
+        <div class="logo-container">
+            <img src="./logo.png" alt="fekro Logo" class="dynamic-logo" onerror="this.style.display='none';">
+            <div class="logo-text">fekro<span>.</span></div>
         </div>
-
-        <div class="links-section">
-            <h2>تواصل معي</h2>
-            
-            <a href="https://wa.me/201035042017" class="link-card whatsapp" target="_blank">
-                <i class="fab fa-whatsapp"></i>
-                <div class="link-info">
-                    <span class="link-name">واتساب</span>
-                    <span class="link-hint">راسلني مباشرة</span>
-                </div>
-            </a>
-
-            <a href="mailto:u.albaz.official@gmail.com" class="link-card email" target="_blank">
-                <i class="fas fa-envelope"></i>
-                <div class="link-info">
-                    <span class="link-name">البريد الإلكتروني</span>
-                    <span class="link-hint">u.albaz.official@gmail.com</span>
-                </div>
-            </a>
+        <div class="nav-controls">
+            <button class="btn-icon" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
+            <button class="btn-icon" onclick="toggleLanguage()"><span class="lang-en">العربية</span><span class="lang-ar">English</span></button>
+            <button class="btn-prime" id="portal-nav-btn" onclick="handlePortalNavigation()">
+                <i class="fa-solid fa-lock"></i> 
+                <span class="lang-en">Admin Portal</span><span class="lang-ar">لوحة التحكم</span>
+            </button>
         </div>
+    </header>
 
-        <footer>
-            <p>&copy; 2026 Youssuf. جميع الحقوق محفوظة.</p>
-        </footer>
+    <main id="public-view" class="view-section active">
+        <section class="hero">
+            <h1 class="lang-en">We Design the <span>Digital</span> Future</h1>
+            <h1 class="lang-ar">نحن نصمم المستقبل <span>الرقمي</span></h1>
+            <p class="lang-en">Exclusive high-end digital solutions crafted for elite enterprises. Innovation meets absolute luxury.</p>
+            <p class="lang-ar">حلول رقمية راقية مصممة خصيصاً للمؤسسات النخبوية. الابتكار يلتقي بالفخامة المطلقة.</p>
+        </section>
+
+        <section class="grid-container">
+            <div class="card glass-panel">
+                <i class="fa-solid fa-bezier-curve"></i>
+                <h3 class="lang-en">UI/UX Crafting</h3><h3 class="lang-ar">تصميم واجهات الاستخدام</h3>
+                <p class="lang-en">Elite user experiences.</p><p class="lang-ar">خبرات مستخدم نخبوية.</p>
+            </div>
+            <div class="card glass-panel">
+                <i class="fa-solid fa-eye"></i>
+                <h3 class="lang-en">Visual Branding</h3><h3 class="lang-ar">الهوية البصرية</h3>
+                <p class="lang-en">Unforgettable brand identities.</p><p class="lang-ar">هويات تجارية لا تُنسى.</p>
+            </div>
+            <div class="card glass-panel">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <h3 class="lang-en">Motion Design</h3><h3 class="lang-ar">موشن ديزاين</h3>
+                <p class="lang-en">Fluid programmatic animations.</p><p class="lang-ar">تحريكات برمجية سلسة.</p>
+            </div>
+        </section>
+    </main>
+
+    <main id="admin-view" class="view-section">
+        <div class="admin-grid">
+            <aside class="admin-sidebar glass-panel">
+                <button class="sidebar-btn active" onclick="switchTab('tasks')"><i class="fa-solid fa-list-check"></i> <span class="lang-en">Tasks Matrix</span><span class="lang-ar">مصفوفة المهام</span></button>
+                <button class="sidebar-btn" onclick="switchTab('memo')"><i class="fa-solid fa-vault"></i> <span class="lang-en">Internal Memo</span><span class="lang-ar">المذكرة السرية</span></button>
+                <button class="sidebar-btn" onclick="switchTab('finance')"><i class="fa-solid fa-wallet"></i> <span class="lang-en">Financial Ledger</span><span class="lang-ar">الجرد المالي</span></button>
+                <button class="sidebar-btn" onclick="logoutAdmin()" style="margin-top:auto; color:var(--accent);"><i class="fa-solid fa-right-from-bracket"></i> <span class="lang-en">Exit Portal</span><span class="lang-ar">خروج</span></button>
+            </aside>
+
+            <section class="admin-main-content">
+                <div id="tab-tasks" class="admin-tab-content active glass-panel" style="padding: 2rem;">
+                    <h2 class="lang-en">Tasks Matrix Deployment</h2><h2 class="lang-ar">نظام إسناد المهام العملياتية</h2>
+                    <form id="task-form" onsubmit="addTask(event)" style="margin-top:1.5rem; display:flex; gap:10px; flex-wrap:wrap;">
+                        <input type="text" id="task-title" class="form-control" placeholder="Task description..." style="flex:2; min-width:200px;" required>
+                        <select id="task-day" class="form-control" style="flex:1; min-width:130px;">
+                            <option value="sat">Saturday / السبت</option>
+                            <option value="sun">Sunday / الأحد</option>
+                            <option value="mon">Monday / الإثنين</option>
+                            <option value="tue">Tuesday / الثلاثاء</option>
+                            <option value="wed">Wednesday / الأربعاء</option>
+                            <option value="thu">Thursday / الخميس</option>
+                        </select>
+                        <select id="task-assignee" class="form-control" style="flex:1; min-width:130px;">
+                            <option value="أدام">Adam / أدام</option>
+                            <option value="عمر موسى">Omar Mousa / عمر موسى</option>
+                            <option value="رحمة">Rahma / رحمة</option>
+                            <option value="جنى">Jana / جنى</option>
+                        </select>
+                        <button type="submit" class="btn-prime"><i class="fa-solid fa-plus"></i></button>
+                    </form>
+                    <div class="matrix-grid" id="matrix-container"></div>
+                </div>
+
+                <div id="tab-memo" class="admin-tab-content glass-panel" style="padding: 2rem;">
+                    <h2 class="lang-en">Directors Cryptographic Memo</h2><h2 class="lang-ar">نوتة الملاحظات السرية للمديرين</h2>
+                    <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1rem;">Authorized personnel only: Omar & Khaled</p>
+                    <textarea id="internal-memo-area" class="form-control" rows="12" placeholder="Write corporate directives here..." oninput="saveMemo()"></textarea>
+                </div>
+
+                <div id="tab-finance" class="admin-tab-content glass-panel" style="padding: 2rem;">
+                    <h2 class="lang-en">Financial Ledger Reporting</h2><h2 class="lang-ar">نظام الجرد المالي السنوي</h2>
+                    <div class="ledger-summary" style="margin-top:1.5rem;">
+                        <div class="glass-panel summary-card"><h4 class="lang-en">Total Revenue</h4><h4 class="lang-ar">إجمالي الإيرادات</h4><p id="fin-rev">$0</p></div>
+                        <div class="glass-panel summary-card expense"><h4 class="lang-en">Total Expenses</h4><h4 class="lang-ar">إجمالي المصروفات</h4><p id="fin-exp">$0</p></div>
+                        <div class="glass-panel summary-card profit"><h4 class="lang-en">Net Operating Profit</h4><h4 class="lang-ar">صافي الربح</h4><p id="fin-net">$0</p></div>
+                    </div>
+                    <form id="ledger-form" onsubmit="addLedgerEntry(event)" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:2rem;">
+                        <input type="text" id="entry-desc" class="form-control" placeholder="Item description..." style="flex:2; min-width:200px;" required>
+                        <input type="number" id="entry-amount" class="form-control" placeholder="Amount" style="flex:1; min-width:100px;" required>
+                        <select id="entry-type" class="form-control" style="flex:1; min-width:120px;">
+                            <option value="revenue">Revenue / إيراد</option>
+                            <option value="expense">Expense / مصروف</option>
+                        </select>
+                        <button type="submit" class="btn-prime"><i class="fa-solid fa-check"></i></button>
+                    </form>
+                    <table class="ledger-table">
+                        <thead>
+                            <tr><th class="lang-en">Description</th><th class="lang-ar">البيان</th><th class="lang-en">Type</th><th class="lang-ar">النوع</th><th class="lang-en">Amount</th><th class="lang-ar">القيمة</th><th class="lang-en">Action</th><th class="lang-ar">إجراء</th></tr>
+                        </thead>
+                        <tbody id="ledger-rows"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div id="auth-modal" class="modal">
+        <div class="modal-content glass-panel">
+            <i class="fa-solid fa-shield-halved" style="font-size:3rem; color:var(--accent); margin-bottom:1rem;"></i>
+            <h3 class="lang-en">Cryptographic Authentication</h3><h3 class="lang-ar">نظام التحقق الأمني</h3>
+            <p style="color:var(--text-muted); font-size:0.85rem; margin: 10px 0 20px;" class="lang-en">Enter Administrative Passcode</p>
+            <p style="color:var(--text-muted); font-size:0.85rem; margin: 10px 0 20px;" class="lang-ar">أدخل كلمة المرور الإدارية المشفرة</p>
+            <input type="password" id="portal-password" class="form-control" style="text-align:center; letter-spacing:4px;" placeholder="••••••••">
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button class="btn-icon" style="flex:1;" onclick="closeAuthModal()">Cancel</button>
+                <button class="btn-prime" style="flex:1;" onclick="verifyGatekeeperKey()">Verify</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const linkCards = document.querySelectorAll('.link-card');
-            linkCards.forEach(card => {
-                card.addEventListener('click', function(e) {
-                    const ripple = document.createElement('span');
-                    ripple.style.cssText = `
-                        position: absolute;
-                        background: rgba(255,255,255,0.3);
-                        border-radius: 50%;
-                        transform: scale(0);
-                        animation: ripple 0.6s linear;
-                        pointer-events: none;
-                    `;
-                    const rect = this.getBoundingClientRect();
-                    const size = Math.max(rect.width, rect.height);
-                    ripple.style.width = ripple.style.height = size + 'px';
-                    ripple.style.left = (e.clientX - rect.left - size/2) + 'px';
-                    ripple.style.top = (e.clientY - rect.top - size/2) + 'px';
-                    
-                    this.appendChild(ripple);
-                    setTimeout(() => ripple.remove(), 600);
-                });
-            });
-            const style = document.createElement('style');
-            style.textContent = `@keyframes ripple { to { transform: scale(4); opacity: 0; } }`;
-            document.head.appendChild(style);
+        /* --- Cryptographic System State & Memory Engine --- */
+        const GATEKEEPER_KEY = "f3kro";
+        let tasks = JSON.parse(localStorage.getItem('fekro_tasks')) || [];
+        let ledger = JSON.parse(localStorage.getItem('fekro_ledger')) || [];
+
+        const daysMapping = {
+            en: { sat: 'Saturday', sun: 'Sunday', mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thu: 'Thursday' },
+            ar: { sat: 'السبت', sun: 'الأحد', mon: 'الإثنين', tue: 'الثلاثاء', wed: 'الأربعاء', thu: 'الخميس' }
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            sessionStorage.removeItem('fekro_admin_session');
+            renderTasksMatrix();
+            renderLedger();
+            loadMemo();
         });
+
+        /* --- UI Experience Controllers --- */
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', targetTheme);
+            const icon = document.querySelector('.btn-icon i');
+            icon.className = targetTheme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+        }
+
+        function toggleLanguage() {
+            const currentLang = document.body.getAttribute('data-lang');
+            const targetLang = currentLang === 'en' ? 'ar' : 'en';
+            document.body.setAttribute('data-lang', targetLang);
+            document.body.setAttribute('dir', targetLang === 'ar' ? 'rtl' : 'ltr');
+            renderTasksMatrix(); 
+        }
+
+        function handlePortalNavigation() {
+            if (sessionStorage.getItem('fekro_admin_session') === 'active') {
+                switchView('admin');
+            } else {
+                openAuthModal();
+            }
+        }
+
+        function openAuthModal() { document.getElementById('auth-modal').style.display = 'flex'; document.getElementById('portal-password').focus(); }
+        function closeAuthModal() { document.getElementById('auth-modal').style.display = 'none'; document.getElementById('portal-password').value = ''; }
+
+        function verifyGatekeeperKey() {
+            const input = document.getElementById('portal-password').value;
+            if (input === GATEKEEPER_KEY) {
+                sessionStorage.setItem('fekro_admin_session', 'active');
+                closeAuthModal();
+                switchView('admin');
+            } else {
+                alert("🚨 Access Denied: Invalid Security Cryptokey.");
+                closeAuthModal();
+            }
+        }
+
+        function logoutAdmin() {
+            sessionStorage.removeItem('fekro_admin_session');
+            switchView('public');
+        }
+
+        function switchView(view) {
+            document.getElementById('public-view').classList.remove('active');
+            document.getElementById('admin-view').classList.remove('active');
+            
+            if (view === 'admin' && sessionStorage.getItem('fekro_admin_session') === 'active') {
+                document.getElementById('admin-view').classList.add('active');
+                document.getElementById('portal-nav-btn').style.display = 'none';
+            } else {
+                document.getElementById('public-view').classList.add('active');
+                document.getElementById('portal-nav-btn').style.display = 'flex';
+            }
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.currentTarget.classList.add('active');
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+        }
+
+        /* --- Operational Engine: Tasks Matrix --- */
+        function renderTasksMatrix() {
+            const container = document.getElementById('matrix-container');
+            container.innerHTML = '';
+            const lang = document.body.getAttribute('data-lang');
+            
+            Object.keys(daysMapping[lang]).forEach(dayKey => {
+                const dayColumn = document.createElement('div');
+                dayColumn.className = 'day-column glass-panel';
+                
+                let dayTasksHtml = '';
+                tasks.filter(t => t.day === dayKey).forEach(task => {
+                    dayTasksHtml += `
+                        <div class="task-item">
+                            <button class="delete-btn" onclick="deleteTask(${task.id})"><i class="fa-solid fa-trash-can"></i></button>
+                            <div style="font-size:0.95rem; font-weight:500; padding-right:15px;">${task.title}</div>
+                            <span class="assignee-badge">${task.assignee}</span>
+                        </div>`;
+                });
+
+                dayColumn.innerHTML = `
+                    <div class="day-title">${daysMapping[lang][dayKey]}</div>
+                    <div class="tasks-list-wrapper">${dayTasksHtml}</div>
+                `;
+                container.appendChild(dayColumn);
+            });
+        }
+
+        function addTask(e) {
+            e.preventDefault();
+            const title = document.getElementById('task-title').value;
+            const day = document.getElementById('task-day').value;
+            const assignee = document.getElementById('task-assignee').value;
+            
+            tasks.push({ id: Date.now(), title, day, assignee });
+            localStorage.setItem('fekro_tasks', JSON.stringify(tasks));
+            renderTasksMatrix();
+            document.getElementById('task-form').reset();
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            localStorage.setItem('fekro_tasks', JSON.stringify(tasks));
+            renderTasksMatrix();
+        }
+
+        /* --- Security Directive: Internal Memo --- */
+        function saveMemo() {
+            const text = document.getElementById('internal-memo-area').value;
+            localStorage.setItem('fekro_internal_memo', text);
+        }
+        function loadMemo() {
+            document.getElementById('internal-memo-area').value = localStorage.getItem('fekro_internal_memo') || '';
+        }
+
+        /* --- Ledger Core Engine: Financials --- */
+        function renderLedger() {
+            const rowsContainer = document.getElementById('ledger-rows');
+            rowsContainer.innerHTML = '';
+            
+            let totalRev = 0; let totalExp = 0;
+
+            ledger.forEach(entry => {
+                const isRev = entry.type === 'revenue';
+                if(isRev) totalRev += parseFloat(entry.amount); else totalExp += parseFloat(entry.amount);
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${entry.desc}</td>
+                    <td><span style="color:${isRev ? '#00ff66':'#ff3333'}">${entry.type.toUpperCase()}</span></td>
+                    <td>$${parseFloat(entry.amount).toLocaleString()}</td>
+                    <td><button class="btn-icon" style="padding:4px 8px; color:var(--accent);" onclick="deleteLedgerEntry(${entry.id})"><i class="fa-solid fa-xmark"></i></button></td>
+                `;
+                rowsContainer.appendChild(row);
+            });
+
+            const netProfit = totalRev - totalExp;
+            document.getElementById('fin-rev').innerText = `$${totalRev.toLocaleString()}`;
+            document.getElementById('fin-exp').innerText = `$${totalExp.toLocaleString()}`;
+            document.getElementById('fin-net').innerText = `$${netProfit.toLocaleString()}`;
+        }
+
+        function addLedgerEntry(e) {
+            e.preventDefault();
+            const desc = document.getElementById('entry-desc').value;
+            const amount = document.getElementById('entry-amount').value;
+            const type = document.getElementById('entry-type').value;
+
+            ledger.push({ id: Date.now(), desc, amount, type });
+            localStorage.setItem('fekro_ledger', JSON.stringify(ledger));
+            renderLedger();
+            document.getElementById('ledger-form').reset();
+        }
+
+        function deleteLedgerEntry(id) {
+            ledger = ledger.filter(e => e.id !== id);
+            localStorage.setItem('fekro_ledger', JSON.stringify(ledger));
+            renderLedger();
+        }
     </script>
 </body>
 </html>
