@@ -1,1 +1,784 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>جلوبال فارما | نظام إدارة الصيدلية</title>
+<style>
+  :root{
+    --bg: #10142b;
+    --surface: #ffffff;
+    --ink: #1b1e33;
+    --ink-soft: #5b5f7d;
+    --primary: #6366f1;
+    --primary-dark: #241f5e;
+    --primary-tint: #eceafd;
+    --amber: #f59e0b;
+    --amber-tint: #fdf0d9;
+    --cyan: #22d3ee;
+    --red: #ef4444;
+    --red-tint: #fde3e3;
+    --line: #e2e3f2;
+    --radius: 14px;
+    --font-ar: 'Segoe UI', Tahoma, Geneva, Arial, sans-serif;
+    --font-mono: 'Courier New', Consolas, monospace;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;color:var(--ink);font-family:var(--font-ar);
+    background:linear-gradient(135deg,#0b0e1f,#1c1650,#0e1030,#241a5e);
+    background-size:300% 300%;
+    opacity:0;animation:pageIn .6s ease forwards, bgDrift 20s ease-in-out infinite;}
+  #app{display:flex;min-height:100vh;position:relative;z-index:1;}
 
+  .bg-orbs{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:-1;}
+  .orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5;}
+  .orb.o1{width:340px;height:340px;background:var(--primary);top:-70px;right:-60px;animation:floatY 9s ease-in-out infinite;}
+  .orb.o2{width:260px;height:260px;background:var(--amber);bottom:8%;left:-80px;animation:floatY 12s ease-in-out infinite reverse;}
+  .orb.o3{width:300px;height:300px;background:var(--cyan);top:38%;right:18%;animation:floatX 15s ease-in-out infinite;}
+  .orb.o4{width:220px;height:220px;background:#a855f7;bottom:-60px;right:35%;animation:floatY 11s ease-in-out infinite;}
+  .orb.o5{width:180px;height:180px;background:var(--cyan);top:8%;left:10%;animation:floatX 13s ease-in-out infinite reverse;}
+
+  @keyframes pageIn{from{opacity:0;}to{opacity:1;}}
+  @keyframes fadeInUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+  @keyframes scaleIn{from{opacity:0;transform:scale(.92);}to{opacity:1;transform:scale(1);}}
+  @keyframes shimmer{0%{background-position:-300px 0;}100%{background-position:300px 0;}}
+  @keyframes bgDrift{0%{background-position:0% 0%;}50%{background-position:100% 100%;}100%{background-position:0% 0%;}}
+  @keyframes floatY{0%,100%{transform:translateY(0);}50%{transform:translateY(-45px);}}
+  @keyframes floatX{0%,100%{transform:translate(0,0);}50%{transform:translate(-35px,30px);}}
+  @keyframes toastIn{from{opacity:0;transform:translate(-50%,12px);}to{opacity:1;transform:translate(-50%,0);}}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* Signature element: capsule divider used throughout as a pharmacy motif */
+  .capsule{display:inline-block;width:22px;height:10px;border-radius:6px;
+    background:linear-gradient(90deg,var(--primary) 50%,var(--cyan) 50%);flex:none;}
+
+  .sidebar{
+    width:88px;background:var(--primary-dark);color:#fff;
+    display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:6px;
+    position:sticky;top:0;height:100vh;flex:none;
+  }
+  .sidebar .brand{margin-bottom:18px;text-align:center;animation:fadeInUp .5s ease both;}
+  .sidebar .brand .capsule{width:30px;height:14px;margin-bottom:6px;}
+  .navbtn{
+    width:64px;padding:10px 4px;border:none;background:transparent;color:#cfe6df;
+    border-radius:10px;cursor:pointer;font-family:var(--font-ar);font-size:11px;
+    display:flex;flex-direction:column;align-items:center;gap:4px;
+    transition:background .2s ease, transform .2s ease;
+    animation:fadeInUp .5s ease both;
+  }
+  .navbtn:nth-child(3){animation-delay:.05s;}
+  .navbtn:nth-child(4){animation-delay:.1s;}
+  .navbtn:nth-child(5){animation-delay:.15s;}
+  .navbtn .ic{font-size:20px;transition:transform .2s ease;}
+  .navbtn.active{background:var(--primary);color:#fff;}
+  .navbtn:hover{background:rgba(255,255,255,.1);transform:translateY(-2px);}
+  .navbtn:hover .ic{transform:scale(1.15);}
+  .navbtn:active{transform:translateY(0) scale(.96);}
+
+  main{flex:1;padding:22px 26px 60px;max-width:1100px;margin:0 auto;width:100%;}
+  main > section{animation:fadeIn .35s ease both;}
+  h1{font-size:22px;margin:0 0 4px;font-weight:900;}
+  .subtitle{color:var(--ink-soft);margin:0 0 22px;font-size:13px;}
+
+  .grid-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:22px;}
+  .stat-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;
+    transition:transform .25s ease, box-shadow .25s ease;animation:fadeInUp .5s ease both;}
+  .stat-card:nth-child(1){animation-delay:0s;}
+  .stat-card:nth-child(2){animation-delay:.07s;}
+  .stat-card:nth-child(3){animation-delay:.14s;}
+  .stat-card:nth-child(4){animation-delay:.21s;}
+  .stat-card:hover{transform:translateY(-4px);box-shadow:0 12px 26px rgba(15,107,92,.12);}
+  .stat-card .label{font-size:12px;color:var(--ink-soft);margin-bottom:6px;}
+  .stat-card .value{font-size:24px;font-weight:900;color:var(--primary-dark);font-family:var(--font-mono);direction:ltr;text-align:right;}
+  .stat-card.alert .value{color:var(--red);}
+
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:18px;
+    animation:fadeInUp .55s ease both;}
+  .panel h2{font-size:15px;margin:0 0 12px;display:flex;align-items:center;gap:8px;}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead th{position:sticky;top:0;background:var(--primary-tint);color:var(--primary-dark);
+    text-align:right;padding:8px 10px;font-weight:700;border-bottom:2px solid var(--primary);}
+  tbody td{padding:8px 10px;border-bottom:1px solid var(--line);}
+  tbody tr{transition:background .15s ease;}
+  tbody tr:hover{background:#f5faf8;}
+  .mono{font-family:var(--font-mono);direction:ltr;text-align:right;}
+  .tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;}
+  .tag.expired{background:var(--red-tint);color:var(--red);}
+  .tag.soon{background:var(--amber-tint);color:var(--amber);}
+  .tag.low{background:var(--amber-tint);color:var(--amber);}
+  .tag.ok{background:var(--primary-tint);color:var(--primary-dark);}
+
+  .table-wrap{max-height:460px;overflow:auto;border:1px solid var(--line);border-radius:10px;}
+
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
+  label{display:block;font-size:12px;color:var(--ink-soft);margin-bottom:4px;}
+  input,select{
+    font-family:var(--font-ar);border:1px solid var(--line);border-radius:8px;
+    padding:9px 10px;font-size:14px;background:#fff;color:var(--ink);width:100%;
+    transition:box-shadow .2s ease, border-color .2s ease;
+  }
+  input:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-tint);}
+  input[type=file]{padding:8px;}
+  .field{flex:1;min-width:140px;}
+
+  button{
+    font-family:var(--font-ar);border:none;border-radius:9px;padding:10px 16px;
+    font-size:13px;font-weight:700;cursor:pointer;transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+  }
+  button:active{transform:scale(.96);}
+  .btn-primary{background:var(--primary);color:#fff;}
+  .btn-primary:hover{background:var(--primary-dark);box-shadow:0 6px 16px rgba(15,107,92,.3);transform:translateY(-1px);}
+  .btn-ghost{background:var(--primary-tint);color:var(--primary-dark);}
+  .btn-ghost:hover{transform:translateY(-1px);}
+  .btn-danger{background:var(--red-tint);color:var(--red);}
+  .btn-danger:hover{transform:translateY(-1px);}
+  .btn-sm{padding:6px 10px;font-size:12px;}
+
+  .pager{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:12px;color:var(--ink-soft);}
+  .pager button{background:var(--primary-tint);color:var(--primary-dark);padding:6px 12px;}
+  .pager button:disabled{opacity:.4;cursor:default;}
+
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+    background:var(--primary-dark);color:#fff;padding:10px 18px;border-radius:30px;
+    font-size:13px;opacity:0;pointer-events:none;z-index:50;}
+  .toast.show{opacity:1;animation:toastIn .3s ease;}
+
+  .modal-backdrop{position:fixed;inset:0;background:rgba(15,30,25,.45);display:flex;
+    align-items:center;justify-content:center;z-index:60;padding:16px;animation:fadeIn .2s ease;}
+  .modal{background:#fff;border-radius:var(--radius);padding:20px;width:100%;max-width:420px;max-height:90vh;overflow:auto;
+    animation:scaleIn .25s ease;}
+  .modal h3{margin:0 0 14px;font-size:16px;}
+
+  section[hidden]{display:none;}
+
+  /* ---------------- Access lock screen ---------------- */
+  .lock-screen{
+    position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;
+    background:linear-gradient(135deg, var(--primary-dark), var(--primary), var(--primary-dark));
+    background-size:200% 200%;animation:bgDrift 8s ease infinite;
+  }
+  .lock-box{
+    background:#fff;border-radius:var(--radius);padding:28px 24px;width:100%;max-width:340px;text-align:center;
+    animation:scaleIn .4s ease;box-shadow:0 20px 50px rgba(0,0,0,.3);
+  }
+  .lock-box .capsule{width:34px;height:16px;margin:0 auto 14px;}
+  .lock-box h2{font-size:17px;margin-bottom:6px;}
+  .lock-box p{font-size:12px;color:var(--ink-soft);margin-bottom:16px;}
+  .lock-box input{text-align:center;letter-spacing:2px;margin-bottom:10px;}
+  .lock-box .err{color:var(--red);font-size:12px;min-height:16px;margin-bottom:6px;}
+  .lock-box button{width:100%;}
+  .lock-check{display:flex;align-items:center;gap:6px;justify-content:center;font-size:12px;color:var(--ink-soft);margin-bottom:10px;}
+  .lock-check input{width:auto;margin:0;}
+
+  .skeleton{
+    background:linear-gradient(90deg, var(--line) 0%, #eef3f0 50%, var(--line) 100%);
+    background-size:600px 100%;animation:shimmer 1.4s infinite linear;
+    border-radius:8px;height:60px;
+  }
+
+  #fatal-error{
+    position:fixed;top:0;left:0;right:0;background:var(--red);color:#fff;padding:12px 16px;
+    font-size:13px;z-index:999;text-align:center;direction:rtl;font-family:var(--font-ar);
+  }
+
+  @media (max-width:640px){
+    .sidebar{width:64px;}
+    .navbtn{width:52px;font-size:9px;}
+    main{padding:16px;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;}
+  }
+</style>
+</head>
+<body>
+<div class="bg-orbs" aria-hidden="true">
+  <span class="orb o1"></span>
+  <span class="orb o2"></span>
+  <span class="orb o3"></span>
+  <span class="orb o4"></span>
+  <span class="orb o5"></span>
+</div>
+
+<div class="lock-screen" id="lock-screen">
+  <div class="lock-box">
+    <span class="capsule"></span>
+    <h2>جلوبال فارما</h2>
+    <p>نظام إدارة الصيدلية الخاص بـ ياسر الشيشيني — أدخل كلمة المرور للدخول</p>
+    <input type="password" id="lock-pass" placeholder="كلمة المرور" autocomplete="off">
+    <label class="lock-check"><input type="checkbox" id="lock-show"> إظهار كلمة المرور</label>
+    <div class="err" id="lock-err"></div>
+    <button class="btn-primary" type="button" id="lock-btn">دخول</button>
+  </div>
+</div>
+
+<div id="app" hidden>
+  <nav class="sidebar">
+    <div class="brand"><span class="capsule"></span></div>
+    <button class="navbtn active" data-page="dashboard"><span class="ic">📊</span>الرئيسية</button>
+    <button class="navbtn" data-page="products"><span class="ic">💊</span>الأصناف</button>
+    <button class="navbtn" data-page="import"><span class="ic">📥</span>استيراد</button>
+    <button class="navbtn" data-page="search"><span class="ic">🔎</span>بحث</button>
+  </nav>
+
+  <main>
+    <!-- DASHBOARD -->
+    <section id="page-dashboard">
+      <h1>لوحة التحكم</h1>
+      <p class="subtitle">جلوبال فارما — يعمل بدون إنترنت، والبيانات محفوظة على جهازك</p>
+      <div class="grid-stats" id="stats">
+        <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+      </div>
+      <div class="panel">
+        <h2><span class="capsule"></span> أدوية قريبة من الانتهاء (٩٠ يوم)</h2>
+        <div class="table-wrap"><table><thead><tr><th>الاسم</th><th>الباركود</th><th>الكمية</th><th>الانتهاء</th></tr></thead>
+        <tbody id="tbl-expiry"></tbody></table></div>
+      </div>
+      <div class="panel">
+        <h2><span class="capsule"></span> أدوية أوشكت على النفاد</h2>
+        <div class="table-wrap"><table><thead><tr><th>الاسم</th><th>الباركود</th><th>الكمية</th></tr></thead>
+        <tbody id="tbl-lowstock"></tbody></table></div>
+      </div>
+    </section>
+
+    <!-- PRODUCTS -->
+    <section id="page-products" hidden>
+      <h1>إدارة الأصناف</h1>
+      <p class="subtitle">إضافة، تعديل، وحذف الأدوية</p>
+      <div class="panel">
+        <h2>➕ إضافة صنف جديد</h2>
+        <form id="add-form">
+          <div class="row">
+            <div class="field"><label>اسم الدواء *</label><input id="f-name" required></div>
+            <div class="field"><label>الباركود</label><input id="f-barcode"></div>
+          </div>
+          <div class="row">
+            <div class="field"><label>الكمية</label><input id="f-qty" type="number" min="0" value="0"></div>
+            <div class="field"><label>الشركة المصنعة</label><input id="f-manu"></div>
+          </div>
+          <div class="row">
+            <div class="field"><label>سعر الشراء</label><input id="f-pp" type="number" step="0.01" min="0" value="0"></div>
+            <div class="field"><label>سعر البيع</label><input id="f-sp" type="number" step="0.01" min="0" value="0"></div>
+          </div>
+          <div class="row">
+            <div class="field"><label>تاريخ الانتهاء</label><input id="f-exp" type="date"></div>
+          </div>
+          <button class="btn-primary" type="submit">حفظ الصنف</button>
+        </form>
+      </div>
+      <div class="panel">
+        <h2>📋 كل الأصناف</h2>
+        <input id="products-filter" placeholder="فلترة سريعة بالاسم أو الباركود..." style="margin-bottom:10px;">
+        <div class="table-wrap"><table><thead><tr>
+          <th>الاسم</th><th>الباركود</th><th>الكمية</th><th>الشراء</th><th>البيع</th><th>الانتهاء</th><th></th>
+        </tr></thead><tbody id="tbl-products"></tbody></table></div>
+        <div class="pager" id="products-pager"></div>
+      </div>
+    </section>
+
+    <!-- IMPORT -->
+    <section id="page-import" hidden>
+      <h1>رفع بيانات ضخمة</h1>
+      <p class="subtitle">ارفع ملف CSV يحتوي على آلاف الأصناف دفعة واحدة</p>
+      <div class="panel">
+        <p style="font-size:13px;color:var(--ink-soft)">الأعمدة المطلوبة:</p>
+        <code style="direction:ltr;display:block;background:var(--primary-tint);padding:8px;border-radius:8px;font-family:var(--font-mono);font-size:12px;">
+        name, barcode, quantity, purchase_price, sale_price, expiry_date, manufacturer</code>
+        <div style="margin-top:14px;"><input type="file" id="csv-file" accept=".csv"></div>
+        <div id="import-preview"></div>
+      </div>
+    </section>
+
+    <!-- SEARCH -->
+    <section id="page-search" hidden>
+      <h1>بحث وجرد</h1>
+      <div class="panel">
+        <div class="row">
+          <div class="field"><label>بحث بالاسم أو الباركود</label><input id="s-query"></div>
+          <div class="field"><label>فلترة</label>
+            <select id="s-filter">
+              <option value="all">الكل</option>
+              <option value="expiry">قريبة الانتهاء</option>
+              <option value="low">أوشكت على النفاد</option>
+              <option value="expired">منتهية الصلاحية</option>
+            </select>
+          </div>
+        </div>
+        <p style="font-size:12px;color:var(--ink-soft)" id="search-count"></p>
+        <div class="table-wrap"><table><thead><tr>
+          <th>الاسم</th><th>الباركود</th><th>الكمية</th><th>البيع</th><th>الانتهاء</th><th>الشركة</th>
+        </tr></thead><tbody id="tbl-search"></tbody></table></div>
+        <div class="pager" id="search-pager"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="modal-root"></div>
+
+<script>
+/* ---------------- Global error safety net ----------------
+   If anything throws anywhere in this script, show it on screen
+   instead of failing silently — makes bugs reportable/fixable. */
+window.addEventListener('error', function(e){
+  var el = document.getElementById('fatal-error');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'fatal-error';
+    document.body.prepend(el);
+  }
+  el.textContent = 'حصل خطأ برمجي: ' + e.message + ' (سطر ' + e.lineno + ') — ابعت لقطة شاشة لهذه الرسالة';
+});
+
+document.addEventListener('DOMContentLoaded', function(){
+
+/* ---------------- Offline persistent storage (IndexedDB) ----------------
+   Data is saved on-device via the browser's built-in IndexedDB, so it
+   survives closing the app/browser and needs no internet connection. */
+const DB_NAME = 'pharmacy_erp_db';
+const STORE = 'medicines';
+let db = null;
+let medicines = [];
+const PAGE_SIZE = 50;
+let productsPage = 1, searchPage = 1;
+
+function openDB(){
+  return new Promise((resolve, reject)=>{
+    if(!window.indexedDB){ reject(new Error('المتصفح ده مش بيدعم التخزين المحلي (IndexedDB)')); return; }
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = e=>{
+      const database = e.target.result;
+      if(!database.objectStoreNames.contains(STORE)){
+        database.createObjectStore(STORE, {keyPath:'id'});
+      }
+    };
+    req.onsuccess = e=>resolve(e.target.result);
+    req.onerror = e=>reject(e.target.error);
+  });
+}
+
+function dbGetAll(){
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction(STORE, 'readonly');
+    const req = tx.objectStore(STORE).getAll();
+    req.onsuccess = ()=>resolve(req.result);
+    req.onerror = ()=>reject(req.error);
+  });
+}
+function dbPut(med){
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction(STORE, 'readwrite');
+    tx.objectStore(STORE).put(med);
+    tx.oncomplete = ()=>resolve();
+    tx.onerror = ()=>reject(tx.error);
+  });
+}
+function dbPutMany(meds){
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction(STORE, 'readwrite');
+    const store = tx.objectStore(STORE);
+    meds.forEach(m=>store.put(m));
+    tx.oncomplete = ()=>resolve();
+    tx.onerror = ()=>reject(tx.error);
+  });
+}
+function dbDelete(id){
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction(STORE, 'readwrite');
+    tx.objectStore(STORE).delete(id);
+    tx.oncomplete = ()=>resolve();
+    tx.onerror = ()=>reject(tx.error);
+  });
+}
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function daysFromNow(n){ const d=new Date(); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.remove('show'); void t.offsetWidth; t.classList.add('show');
+  clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+function animateValue(el, end){
+  const isMoney = end > 1000;
+  let start = 0;
+  const duration = 700;
+  const startTime = performance.now();
+  function step(now){
+    const progress = Math.min((now-startTime)/duration, 1);
+    const eased = 1 - Math.pow(1-progress, 3);
+    const current = start + (end-start)*eased;
+    el.textContent = isMoney ? Math.round(current).toLocaleString() : Math.round(current).toLocaleString();
+    if(progress<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+/* ---------------- Navigation ---------------- */
+document.querySelectorAll('.navbtn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('main > section').forEach(s=>s.hidden=true);
+    const target = document.getElementById('page-'+btn.dataset.page);
+    target.hidden=false;
+    target.style.animation='none'; void target.offsetWidth; target.style.animation='';
+    if(btn.dataset.page==='dashboard') renderDashboard();
+    if(btn.dataset.page==='products') renderProducts();
+    if(btn.dataset.page==='search') renderSearch();
+  });
+});
+
+/* ---------------- Dashboard ---------------- */
+function renderDashboard(){
+  const total = medicines.length;
+  let purchaseVal=0, saleVal=0, expiredCount=0;
+  const today = todayISO();
+  medicines.forEach(m=>{
+    purchaseVal += m.quantity*m.purchasePrice;
+    saleVal += m.quantity*m.salePrice;
+    if(m.expiryDate && m.expiryDate < today) expiredCount++;
+  });
+
+  document.getElementById('stats').innerHTML = `
+    <div class="stat-card"><div class="label">إجمالي عدد الأصناف</div><div class="value" id="v-total">0</div></div>
+    <div class="stat-card"><div class="label">قيمة المخزون (شراء)</div><div class="value" id="v-purchase">0</div></div>
+    <div class="stat-card"><div class="label">قيمة المخزون (بيع)</div><div class="value" id="v-sale">0</div></div>
+    <div class="stat-card alert"><div class="label">أدوية منتهية</div><div class="value" id="v-expired">0</div></div>
+  `;
+  animateValue(document.getElementById('v-total'), total);
+  animateValue(document.getElementById('v-purchase'), Math.round(purchaseVal));
+  animateValue(document.getElementById('v-sale'), Math.round(saleVal));
+  animateValue(document.getElementById('v-expired'), expiredCount);
+
+  const soonMax = daysFromNow(90);
+  const nearExpiry = medicines.filter(m=>m.expiryDate && m.expiryDate>=today && m.expiryDate<=soonMax)
+    .sort((a,b)=>a.expiryDate.localeCompare(b.expiryDate)).slice(0,200);
+  document.getElementById('tbl-expiry').innerHTML = nearExpiry.map(m=>`
+    <tr><td>${escapeHtml(m.name)}</td><td class="mono">${m.barcode||'—'}</td><td class="mono">${m.quantity}</td><td class="mono">${m.expiryDate}</td></tr>
+  `).join('') || emptyRow(4,'لا توجد أدوية قريبة الانتهاء');
+
+  const lowStock = medicines.filter(m=>m.quantity<20).sort((a,b)=>a.quantity-b.quantity).slice(0,200);
+  document.getElementById('tbl-lowstock').innerHTML = lowStock.map(m=>`
+    <tr><td>${escapeHtml(m.name)}</td><td class="mono">${m.barcode||'—'}</td><td class="mono">${m.quantity}</td></tr>
+  `).join('') || emptyRow(3,'لا توجد أدوية أوشكت على النفاد');
+}
+
+function emptyRow(colspan,msg){
+  return `<tr><td colspan="${colspan}" style="text-align:center;color:var(--ink-soft);padding:16px;">${msg}</td></tr>`;
+}
+function escapeHtml(s){
+  return String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ---------------- Products page ---------------- */
+document.getElementById('add-form').addEventListener('submit', e=>{
+  e.preventDefault();
+  const name = document.getElementById('f-name').value.trim();
+  if(!name){ toast('اسم الدواء مطلوب'); return; }
+  const barcode = document.getElementById('f-barcode').value.trim();
+  if(barcode && medicines.some(m=>m.barcode===barcode)){ toast('هذا الباركود مستخدم بالفعل'); return; }
+
+  const newMed = {
+    id: uid(), name, barcode: barcode||null,
+    quantity: Number(document.getElementById('f-qty').value)||0,
+    purchasePrice: Number(document.getElementById('f-pp').value)||0,
+    salePrice: Number(document.getElementById('f-sp').value)||0,
+    expiryDate: document.getElementById('f-exp').value || null,
+    manufacturer: document.getElementById('f-manu').value.trim()||null,
+  };
+  medicines.push(newMed);
+  dbPut(newMed);
+  e.target.reset();
+  document.getElementById('f-exp').value = todayISO();
+  toast('تمت إضافة الصنف وحُفظت على الجهاز');
+  productsPage=1;
+  renderProducts();
+});
+
+document.getElementById('products-filter').addEventListener('input', ()=>{ productsPage=1; renderProducts(); });
+
+function renderProducts(){
+  const q = document.getElementById('products-filter').value.trim().toLowerCase();
+  let list = medicines;
+  if(q) list = list.filter(m => m.name.toLowerCase().includes(q) || (m.barcode||'').includes(q));
+
+  const totalPages = Math.max(1, Math.ceil(list.length/PAGE_SIZE));
+  productsPage = Math.min(productsPage, totalPages);
+  const start = (productsPage-1)*PAGE_SIZE;
+  const pageItems = list.slice(start, start+PAGE_SIZE);
+
+  document.getElementById('tbl-products').innerHTML = pageItems.map(m=>`
+    <tr>
+      <td>${escapeHtml(m.name)}</td>
+      <td class="mono">${m.barcode||'—'}</td>
+      <td class="mono">${m.quantity}</td>
+      <td class="mono">${m.purchasePrice.toFixed(2)}</td>
+      <td class="mono">${m.salePrice.toFixed(2)}</td>
+      <td class="mono">${m.expiryDate||'—'}</td>
+      <td><button class="btn-sm btn-ghost" onclick="window.__openEdit('${m.id}')">تعديل</button>
+          <button class="btn-sm btn-danger" onclick="window.__deleteMed('${m.id}')">حذف</button></td>
+    </tr>
+  `).join('') || emptyRow(7,'لا توجد أصناف بعد');
+
+  document.getElementById('products-pager').innerHTML = `
+    <span>${list.length.toLocaleString()} صنف — صفحة ${productsPage} من ${totalPages}</span>
+    <span>
+      <button ${productsPage<=1?'disabled':''} onclick="window.__prevProductsPage()">السابق</button>
+      <button ${productsPage>=totalPages?'disabled':''} onclick="window.__nextProductsPage()">التالي</button>
+    </span>`;
+}
+window.__prevProductsPage = ()=>{ productsPage--; renderProducts(); };
+window.__nextProductsPage = ()=>{ productsPage++; renderProducts(); };
+
+window.__deleteMed = function(id){
+  medicines = medicines.filter(m=>m.id!==id);
+  dbDelete(id);
+  toast('تم حذف الصنف');
+  renderProducts();
+};
+
+window.__openEdit = function(id){
+  const m = medicines.find(x=>x.id===id);
+  if(!m) return;
+  const root = document.getElementById('modal-root');
+  root.innerHTML = `
+    <div class="modal-backdrop" onclick="if(event.target===this) this.remove()">
+      <div class="modal">
+        <h3>تعديل: ${escapeHtml(m.name)}</h3>
+        <div class="row"><div class="field"><label>الاسم</label><input id="e-name" value="${escapeHtml(m.name)}"></div></div>
+        <div class="row"><div class="field"><label>الباركود</label><input id="e-barcode" value="${escapeHtml(m.barcode||'')}"></div></div>
+        <div class="row">
+          <div class="field"><label>الكمية</label><input id="e-qty" type="number" value="${m.quantity}"></div>
+          <div class="field"><label>الشركة</label><input id="e-manu" value="${escapeHtml(m.manufacturer||'')}"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label>سعر الشراء</label><input id="e-pp" type="number" step="0.01" value="${m.purchasePrice}"></div>
+          <div class="field"><label>سعر البيع</label><input id="e-sp" type="number" step="0.01" value="${m.salePrice}"></div>
+        </div>
+        <div class="row"><div class="field"><label>الانتهاء</label><input id="e-exp" type="date" value="${m.expiryDate||''}"></div></div>
+        <div class="row" style="justify-content:flex-end;">
+          <button class="btn-ghost" type="button" onclick="document.querySelector('.modal-backdrop').remove()">إلغاء</button>
+          <button class="btn-primary" type="button" onclick="window.__saveEdit('${id}')">حفظ التعديلات</button>
+        </div>
+      </div>
+    </div>`;
+};
+
+window.__saveEdit = function(id){
+  const m = medicines.find(x=>x.id===id);
+  if(!m) return;
+  m.name = document.getElementById('e-name').value.trim() || m.name;
+  m.barcode = document.getElementById('e-barcode').value.trim() || null;
+  m.quantity = Number(document.getElementById('e-qty').value)||0;
+  m.manufacturer = document.getElementById('e-manu').value.trim()||null;
+  m.purchasePrice = Number(document.getElementById('e-pp').value)||0;
+  m.salePrice = Number(document.getElementById('e-sp').value)||0;
+  m.expiryDate = document.getElementById('e-exp').value || null;
+  dbPut(m);
+  document.querySelector('.modal-backdrop').remove();
+  toast('تم التحديث وحُفظ على الجهاز');
+  renderProducts();
+};
+
+/* ---------------- Bulk import (built-in offline CSV parser, no CDN needed) ---------------- */
+function parseCSV(text){
+  const rows = [];
+  let i=0, field='', row=[], inQuotes=false;
+  while(i<text.length){
+    const c = text[i];
+    if(inQuotes){
+      if(c === '"'){
+        if(text[i+1] === '"'){ field+='"'; i+=2; continue; }
+        inQuotes=false; i++; continue;
+      }
+      field+=c; i++; continue;
+    } else {
+      if(c === '"'){ inQuotes=true; i++; continue; }
+      if(c === ','){ row.push(field); field=''; i++; continue; }
+      if(c === '\r'){ i++; continue; }
+      if(c === '\n'){ row.push(field); rows.push(row); row=[]; field=''; i++; continue; }
+      field+=c; i++; continue;
+    }
+  }
+  if(field.length || row.length){ row.push(field); rows.push(row); }
+  if(!rows.length) return {header:[], data:[]};
+  const header = rows[0].map(h=>h.trim().toLowerCase());
+  const data = rows.slice(1)
+    .filter(r=>r.length>1 || (r.length===1 && r[0]!==''))
+    .map(r=>{
+      const obj={};
+      header.forEach((h,idx)=>obj[h]=(r[idx]!==undefined?r[idx]:'').trim());
+      return obj;
+    });
+  return {header, data};
+}
+
+document.getElementById('csv-file').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const preview = document.getElementById('import-preview');
+  preview.innerHTML = `<p style="font-size:13px;color:var(--ink-soft)">جاري التحليل...</p>`;
+
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    let parsed;
+    try{
+      parsed = parseCSV(ev.target.result);
+    }catch(err){
+      preview.innerHTML = `<p style="color:var(--red)">تعذّر قراءة الملف: ${err}</p>`;
+      return;
+    }
+    const rows = parsed.data;
+    const required = ['name','quantity','purchase_price','sale_price'];
+    const missing = required.filter(c=>!parsed.header.includes(c));
+    if(missing.length){
+      preview.innerHTML = `<p style="color:var(--red)">أعمدة ناقصة: ${missing.join(', ')}</p>`;
+      return;
+    }
+    preview.innerHTML = `
+      <p style="font-size:13px;">تم العثور على <b>${rows.length.toLocaleString()}</b> صف.</p>
+      <button class="btn-primary" type="button" id="do-import">📥 استيراد الآن</button>
+      <div id="import-progress" style="margin-top:10px;font-size:12px;color:var(--ink-soft);"></div>`;
+    document.getElementById('do-import').addEventListener('click', function(){
+      importRows(rows);
+    });
+  };
+  reader.onerror = function(){
+    preview.innerHTML = `<p style="color:var(--red)">تعذّر قراءة الملف.</p>`;
+  };
+  reader.readAsText(file, 'UTF-8');
+});
+
+function importRows(rows){
+  const progress = document.getElementById('import-progress');
+  const existingBarcodes = new Set(medicines.filter(m=>m.barcode).map(m=>m.barcode));
+  let added=0, skipped=0, i=0;
+  const CHUNK=1000;
+
+  function step(){
+    const chunkEnd = Math.min(i+CHUNK, rows.length);
+    const batch = [];
+    for(; i<chunkEnd; i++){
+      const norm = rows[i];
+      const name = (norm.name||'').toString().trim();
+      if(!name){ skipped++; continue; }
+      const barcode = norm.barcode ? String(norm.barcode).trim() : null;
+      if(barcode && existingBarcodes.has(barcode)){ skipped++; continue; }
+      if(barcode) existingBarcodes.add(barcode);
+
+      const med = {
+        id: uid(), name, barcode,
+        quantity: parseInt(norm.quantity)||0,
+        purchasePrice: parseFloat(norm.purchase_price)||0,
+        salePrice: parseFloat(norm.sale_price)||0,
+        expiryDate: norm.expiry_date ? String(norm.expiry_date).trim() : null,
+        manufacturer: norm.manufacturer ? String(norm.manufacturer).trim() : null,
+      };
+      medicines.push(med);
+      batch.push(med);
+      added++;
+    }
+    dbPutMany(batch);
+    progress.textContent = `تم استيراد ${Math.min(i,rows.length).toLocaleString()} من ${rows.length.toLocaleString()} وحُفظت على الجهاز...`;
+    if(i<rows.length){
+      setTimeout(step,0);
+    } else {
+      progress.textContent = `اكتمل: أُضيف ${added.toLocaleString()} صنف، تم تجاوز ${skipped.toLocaleString()} (مكرر/بدون اسم). كل البيانات محفوظة على جهازك.`;
+      toast('اكتمل الاستيراد والحفظ');
+    }
+  }
+  step();
+}
+
+/* ---------------- Search & inventory ---------------- */
+document.getElementById('s-query').addEventListener('input', ()=>{ searchPage=1; renderSearch(); });
+document.getElementById('s-filter').addEventListener('change', ()=>{ searchPage=1; renderSearch(); });
+
+function renderSearch(){
+  const q = document.getElementById('s-query').value.trim().toLowerCase();
+  const filter = document.getElementById('s-filter').value;
+  const today = todayISO();
+  const soonMax = daysFromNow(90);
+
+  let list = medicines;
+  if(q) list = list.filter(m=>m.name.toLowerCase().includes(q) || (m.barcode||'').includes(q));
+  if(filter==='expiry') list = list.filter(m=>m.expiryDate && m.expiryDate>=today && m.expiryDate<=soonMax);
+  else if(filter==='low') list = list.filter(m=>m.quantity<20);
+  else if(filter==='expired') list = list.filter(m=>m.expiryDate && m.expiryDate<today);
+
+  document.getElementById('search-count').textContent = `${list.length.toLocaleString()} نتيجة`;
+
+  const totalPages = Math.max(1, Math.ceil(list.length/PAGE_SIZE));
+  searchPage = Math.min(searchPage, totalPages);
+  const start=(searchPage-1)*PAGE_SIZE;
+  const pageItems = list.slice(start,start+PAGE_SIZE);
+
+  document.getElementById('tbl-search').innerHTML = pageItems.map(m=>{
+    let tag='<span class="tag ok">سليم</span>';
+    if(m.expiryDate && m.expiryDate<today) tag='<span class="tag expired">منتهي</span>';
+    else if(m.expiryDate && m.expiryDate<=soonMax) tag='<span class="tag soon">قريب الانتهاء</span>';
+    else if(m.quantity<20) tag='<span class="tag low">مخزون منخفض</span>';
+    return `<tr>
+      <td>${escapeHtml(m.name)}</td><td class="mono">${m.barcode||'—'}</td>
+      <td class="mono">${m.quantity}</td><td class="mono">${m.salePrice.toFixed(2)}</td>
+      <td class="mono">${m.expiryDate||'—'} ${tag}</td><td>${escapeHtml(m.manufacturer||'—')}</td>
+    </tr>`;
+  }).join('') || emptyRow(6,'لا توجد نتائج');
+
+  document.getElementById('search-pager').innerHTML = `
+    <span>صفحة ${searchPage} من ${totalPages}</span>
+    <span>
+      <button ${searchPage<=1?'disabled':''} onclick="window.__prevSearchPage()">السابق</button>
+      <button ${searchPage>=totalPages?'disabled':''} onclick="window.__nextSearchPage()">التالي</button>
+    </span>`;
+}
+window.__prevSearchPage = ()=>{ searchPage--; renderSearch(); };
+window.__nextSearchPage = ()=>{ searchPage++; renderSearch(); };
+
+/* ---------------- Access lock ---------------- */
+const ACCESS_PASSWORD = "yasser2024"; /* غيّرها هنا قبل ما تسلّم النظام للعميل */
+
+document.getElementById('lock-show').addEventListener('change', function(){
+  document.getElementById('lock-pass').type = this.checked ? 'text' : 'password';
+});
+
+function tryUnlock(){
+  const entered = document.getElementById('lock-pass').value.trim();
+  if(entered === ACCESS_PASSWORD){
+    document.getElementById('lock-screen').remove();
+    document.getElementById('app').hidden = false;
+    startApp();
+  } else {
+    document.getElementById('lock-err').textContent = 'كلمة مرور غير صحيحة';
+    document.getElementById('lock-pass').value = '';
+    document.getElementById('lock-pass').focus();
+  }
+}
+document.getElementById('lock-btn').addEventListener('click', tryUnlock);
+document.getElementById('lock-pass').addEventListener('keydown', function(e){
+  if(e.key === 'Enter'){ e.preventDefault(); tryUnlock(); }
+});
+document.getElementById('lock-pass').focus();
+
+function startApp(){
+  document.getElementById('f-exp').value = todayISO();
+  openDB().then(async database=>{
+    db = database;
+    medicines = await dbGetAll();
+    renderDashboard();
+  }).catch(err=>{
+    document.getElementById('stats').innerHTML = `<p style="color:var(--red);font-size:13px;">تعذّر فتح قاعدة البيانات المحلية: ${err.message||err}</p>`;
+  });
+}
+
+}); // end DOMContentLoaded
+</script>
+</body>
+  </html> 
