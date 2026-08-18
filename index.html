@@ -1,685 +1,784 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>fekro® | Enterprise Workspace</title>
-    
-    <meta property="og:title" content="fekro® | Enterprise Workspace">
-    <meta property="og:description" content="Official Management Portal for fekro Design Agency.">
-    <meta property="og:type" content="website">
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        /* --- Design System & Variables --- */
-        :root[data-theme="dark"] {
-            --bg-main: #0a0a0a;
-            --bg-card: rgba(20, 20, 20, 0.6);
-            --border-color: rgba(255, 255, 255, 0.08);
-            --text-main: #ffffff;
-            --text-muted: #a0a0a0;
-            --accent: #ff003c;
-            --accent-glow: rgba(255, 0, 60, 0.4);
-            --glass-bg: rgba(15, 15, 15, 0.7);
-            --shadow: rgba(0, 0, 0, 0.7);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>جلوبال فارما | نظام إدارة الصيدلية</title>
+<style>
+  :root{
+    --bg: #10142b;
+    --surface: #ffffff;
+    --ink: #1b1e33;
+    --ink-soft: #5b5f7d;
+    --primary: #6366f1;
+    --primary-dark: #241f5e;
+    --primary-tint: #eceafd;
+    --amber: #f59e0b;
+    --amber-tint: #fdf0d9;
+    --cyan: #22d3ee;
+    --red: #ef4444;
+    --red-tint: #fde3e3;
+    --line: #e2e3f2;
+    --radius: 14px;
+    --font-ar: 'Segoe UI', Tahoma, Geneva, Arial, sans-serif;
+    --font-mono: 'Courier New', Consolas, monospace;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;color:var(--ink);font-family:var(--font-ar);
+    background:linear-gradient(135deg,#0b0e1f,#1c1650,#0e1030,#241a5e);
+    background-size:300% 300%;
+    opacity:0;animation:pageIn .6s ease forwards, bgDrift 20s ease-in-out infinite;}
+  #app{display:flex;min-height:100vh;position:relative;z-index:1;}
 
-        :root[data-theme="light"] {
-            --bg-main: #f5f5f7;
-            --bg-card: rgba(255, 255, 255, 0.7);
-            --border-color: rgba(0, 0, 0, 0.08);
-            --text-main: #1d1d1f;
-            --text-muted: #6e6e73;
-            --accent: #ff003c;
-            --accent-glow: rgba(255, 0, 60, 0.2);
-            --glass-bg: rgba(255, 255, 255, 0.8);
-            --shadow: rgba(0, 0, 0, 0.05);
-        }
+  .bg-orbs{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:-1;}
+  .orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:.5;}
+  .orb.o1{width:340px;height:340px;background:var(--primary);top:-70px;right:-60px;animation:floatY 9s ease-in-out infinite;}
+  .orb.o2{width:260px;height:260px;background:var(--amber);bottom:8%;left:-80px;animation:floatY 12s ease-in-out infinite reverse;}
+  .orb.o3{width:300px;height:300px;background:var(--cyan);top:38%;right:18%;animation:floatX 15s ease-in-out infinite;}
+  .orb.o4{width:220px;height:220px;background:#a855f7;bottom:-60px;right:35%;animation:floatY 11s ease-in-out infinite;}
+  .orb.o5{width:180px;height:180px;background:var(--cyan);top:8%;left:10%;animation:floatX 13s ease-in-out infinite reverse;}
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-        }
+  @keyframes pageIn{from{opacity:0;}to{opacity:1;}}
+  @keyframes fadeInUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+  @keyframes scaleIn{from{opacity:0;transform:scale(.92);}to{opacity:1;transform:scale(1);}}
+  @keyframes shimmer{0%{background-position:-300px 0;}100%{background-position:300px 0;}}
+  @keyframes bgDrift{0%{background-position:0% 0%;}50%{background-position:100% 100%;}100%{background-position:0% 0%;}}
+  @keyframes floatY{0%,100%{transform:translateY(0);}50%{transform:translateY(-45px);}}
+  @keyframes floatX{0%,100%{transform:translate(0,0);}50%{transform:translate(-35px,30px);}}
+  @keyframes toastIn{from{opacity:0;transform:translate(-50%,12px);}to{opacity:1;transform:translate(-50%,0);}}
+  @keyframes spin{to{transform:rotate(360deg);}}
 
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
+  /* Signature element: capsule divider used throughout as a pharmacy motif */
+  .capsule{display:inline-block;width:22px;height:10px;border-radius:6px;
+    background:linear-gradient(90deg,var(--primary) 50%,var(--cyan) 50%);flex:none;}
 
-        /* --- Glassmorphic Layout --- */
-        .glass-panel {
-            background: var(--bg-card);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            box-shadow: 0 8px 32px 0 var(--shadow);
-        }
+  .sidebar{
+    width:88px;background:var(--primary-dark);color:#fff;
+    display:flex;flex-direction:column;align-items:center;padding:18px 0;gap:6px;
+    position:sticky;top:0;height:100vh;flex:none;
+  }
+  .sidebar .brand{margin-bottom:18px;text-align:center;animation:fadeInUp .5s ease both;}
+  .sidebar .brand .capsule{width:30px;height:14px;margin-bottom:6px;}
+  .navbtn{
+    width:64px;padding:10px 4px;border:none;background:transparent;color:#cfe6df;
+    border-radius:10px;cursor:pointer;font-family:var(--font-ar);font-size:11px;
+    display:flex;flex-direction:column;align-items:center;gap:4px;
+    transition:background .2s ease, transform .2s ease;
+    animation:fadeInUp .5s ease both;
+  }
+  .navbtn:nth-child(3){animation-delay:.05s;}
+  .navbtn:nth-child(4){animation-delay:.1s;}
+  .navbtn:nth-child(5){animation-delay:.15s;}
+  .navbtn .ic{font-size:20px;transition:transform .2s ease;}
+  .navbtn.active{background:var(--primary);color:#fff;}
+  .navbtn:hover{background:rgba(255,255,255,.1);transform:translateY(-2px);}
+  .navbtn:hover .ic{transform:scale(1.15);}
+  .navbtn:active{transform:translateY(0) scale(.96);}
 
-        /* --- Navigation Bar --- */
-        header {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+  main{flex:1;padding:22px 26px 60px;max-width:1100px;margin:0 auto;width:100%;}
+  main > section{animation:fadeIn .35s ease both;}
+  h1{font-size:22px;margin:0 0 4px;font-weight:900;}
+  .subtitle{color:var(--ink-soft);margin:0 0 22px;font-size:13px;}
 
-        /* --- 3D Logo Engine --- */
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            perspective: 1000px;
-        }
+  .grid-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:22px;}
+  .stat-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;
+    transition:transform .25s ease, box-shadow .25s ease;animation:fadeInUp .5s ease both;}
+  .stat-card:nth-child(1){animation-delay:0s;}
+  .stat-card:nth-child(2){animation-delay:.07s;}
+  .stat-card:nth-child(3){animation-delay:.14s;}
+  .stat-card:nth-child(4){animation-delay:.21s;}
+  .stat-card:hover{transform:translateY(-4px);box-shadow:0 12px 26px rgba(15,107,92,.12);}
+  .stat-card .label{font-size:12px;color:var(--ink-soft);margin-bottom:6px;}
+  .stat-card .value{font-size:24px;font-weight:900;color:var(--primary-dark);font-family:var(--font-mono);direction:ltr;text-align:right;}
+  .stat-card.alert .value{color:var(--red);}
 
-        .dynamic-logo {
-            height: 40px;
-            width: auto;
-            object-fit: contain;
-            transform-style: preserve-3d;
-            transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), filter 0.3s ease;
-            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));
-        }
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:18px;
+    animation:fadeInUp .55s ease both;}
+  .panel h2{font-size:15px;margin:0 0 12px;display:flex;align-items:center;gap:8px;}
 
-        .logo-container:hover .dynamic-logo {
-            transform: rotateY(15deg) rotateX(10deg) translateZ(10px);
-            filter: drop-shadow(-5px 8px 12px var(--accent-glow));
-        }
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead th{position:sticky;top:0;background:var(--primary-tint);color:var(--primary-dark);
+    text-align:right;padding:8px 10px;font-weight:700;border-bottom:2px solid var(--primary);}
+  tbody td{padding:8px 10px;border-bottom:1px solid var(--line);}
+  tbody tr{transition:background .15s ease;}
+  tbody tr:hover{background:#f5faf8;}
+  .mono{font-family:var(--font-mono);direction:ltr;text-align:right;}
+  .tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;}
+  .tag.expired{background:var(--red-tint);color:var(--red);}
+  .tag.soon{background:var(--amber-tint);color:var(--amber);}
+  .tag.low{background:var(--amber-tint);color:var(--amber);}
+  .tag.ok{background:var(--primary-tint);color:var(--primary-dark);}
 
-        .logo-text {
-            font-size: 1.5rem;
-            font-weight: 900;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
+  .table-wrap{max-height:460px;overflow:auto;border:1px solid var(--line);border-radius:10px;}
 
-        .logo-text span {
-            color: var(--accent);
-            text-shadow: 0 0 10px var(--accent-glow);
-        }
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
+  label{display:block;font-size:12px;color:var(--ink-soft);margin-bottom:4px;}
+  input,select{
+    font-family:var(--font-ar);border:1px solid var(--line);border-radius:8px;
+    padding:9px 10px;font-size:14px;background:#fff;color:var(--ink);width:100%;
+    transition:box-shadow .2s ease, border-color .2s ease;
+  }
+  input:focus,select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-tint);}
+  input[type=file]{padding:8px;}
+  .field{flex:1;min-width:140px;}
 
-        .nav-controls {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
+  button{
+    font-family:var(--font-ar);border:none;border-radius:9px;padding:10px 16px;
+    font-size:13px;font-weight:700;cursor:pointer;transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+  }
+  button:active{transform:scale(.96);}
+  .btn-primary{background:var(--primary);color:#fff;}
+  .btn-primary:hover{background:var(--primary-dark);box-shadow:0 6px 16px rgba(15,107,92,.3);transform:translateY(-1px);}
+  .btn-ghost{background:var(--primary-tint);color:var(--primary-dark);}
+  .btn-ghost:hover{transform:translateY(-1px);}
+  .btn-danger{background:var(--red-tint);color:var(--red);}
+  .btn-danger:hover{transform:translateY(-1px);}
+  .btn-sm{padding:6px 10px;font-size:12px;}
 
-        .btn-icon, .btn-prime {
-            background: var(--glass-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 10px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 600;
-        }
+  .pager{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:12px;color:var(--ink-soft);}
+  .pager button{background:var(--primary-tint);color:var(--primary-dark);padding:6px 12px;}
+  .pager button:disabled{opacity:.4;cursor:default;}
 
-        .btn-icon:hover, .btn-prime:hover {
-            border-color: var(--accent);
-            box-shadow: 0 0 12px var(--accent-glow);
-        }
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+    background:var(--primary-dark);color:#fff;padding:10px 18px;border-radius:30px;
+    font-size:13px;opacity:0;pointer-events:none;z-index:50;}
+  .toast.show{opacity:1;animation:toastIn .3s ease;}
 
-        .btn-prime {
-            background: var(--accent);
-            color: #fff;
-            border: none;
-        }
+  .modal-backdrop{position:fixed;inset:0;background:rgba(15,30,25,.45);display:flex;
+    align-items:center;justify-content:center;z-index:60;padding:16px;animation:fadeIn .2s ease;}
+  .modal{background:#fff;border-radius:var(--radius);padding:20px;width:100%;max-width:420px;max-height:90vh;overflow:auto;
+    animation:scaleIn .25s ease;}
+  .modal h3{margin:0 0 14px;font-size:16px;}
 
-        /* --- View Management --- */
-        .view-section {
-            display: none;
-            padding-top: 100px;
-            min-height: 100vh;
-            animation: fadeIn 0.5s ease-in-out forwards;
-        }
+  section[hidden]{display:none;}
 
-        .view-section.active {
-            display: block;
-        }
+  /* ---------------- Access lock screen ---------------- */
+  .lock-screen{
+    position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;
+    background:linear-gradient(135deg, var(--primary-dark), var(--primary), var(--primary-dark));
+    background-size:200% 200%;animation:bgDrift 8s ease infinite;
+  }
+  .lock-box{
+    background:#fff;border-radius:var(--radius);padding:28px 24px;width:100%;max-width:340px;text-align:center;
+    animation:scaleIn .4s ease;box-shadow:0 20px 50px rgba(0,0,0,.3);
+  }
+  .lock-box .capsule{width:34px;height:16px;margin:0 auto 14px;}
+  .lock-box h2{font-size:17px;margin-bottom:6px;}
+  .lock-box p{font-size:12px;color:var(--ink-soft);margin-bottom:16px;}
+  .lock-box input{text-align:center;letter-spacing:2px;margin-bottom:10px;}
+  .lock-box .err{color:var(--red);font-size:12px;min-height:16px;margin-bottom:6px;}
+  .lock-box button{width:100%;}
+  .lock-check{display:flex;align-items:center;gap:6px;justify-content:center;font-size:12px;color:var(--ink-soft);margin-bottom:10px;}
+  .lock-check input{width:auto;margin:0;}
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+  .skeleton{
+    background:linear-gradient(90deg, var(--line) 0%, #eef3f0 50%, var(--line) 100%);
+    background-size:600px 100%;animation:shimmer 1.4s infinite linear;
+    border-radius:8px;height:60px;
+  }
 
-        /* --- Landing Page --- */
-        .hero {
-            text-align: center;
-            padding: 6rem 2rem 4rem;
-            max-width: 800px;
-            margin: 0 auto;
-        }
+  #fatal-error{
+    position:fixed;top:0;left:0;right:0;background:var(--red);color:#fff;padding:12px 16px;
+    font-size:13px;z-index:999;text-align:center;direction:rtl;font-family:var(--font-ar);
+  }
 
-        .hero h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1.5rem;
-            font-weight: 800;
-        }
-
-        .hero p {
-            color: var(--text-muted);
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-        }
-
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            padding: 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .card {
-            padding: 2rem;
-            text-align: center;
-        }
-
-        .card i {
-            font-size: 2.5rem;
-            color: var(--accent);
-            margin-bottom: 1.5rem;
-        }
-
-        /* --- Admin Portal Structure --- */
-        .admin-grid {
-            display: grid;
-            grid-template-columns: 250px 1fr;
-            gap: 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        .admin-sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            padding: 1.5rem;
-            height: fit-content;
-        }
-
-        .sidebar-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            padding: 12px 15px;
-            text-align: left;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        body[dir="rtl"] .sidebar-btn {
-            text-align: right;
-        }
-
-        .sidebar-btn.active, .sidebar-btn:hover {
-            background: var(--accent);
-            color: white;
-        }
-
-        .admin-tab-content {
-            display: none;
-        }
-
-        .admin-tab-content.active {
-            display: block;
-        }
-
-        /* --- Forms & Controls --- */
-        .form-group {
-            margin-bottom: 1.2rem;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px;
-            background: var(--bg-main);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            border-radius: 8px;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-
-        /* --- Tasks Matrix Layout --- */
-        .matrix-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-
-        .day-column {
-            padding: 1rem;
-            min-height: 300px;
-        }
-
-        .day-title {
-            font-weight: 700;
-            border-bottom: 2px solid var(--accent);
-            padding-bottom: 5px;
-            margin-bottom: 1rem;
-            text-transform: uppercase;
-        }
-
-        .task-item {
-            background: var(--bg-main);
-            border: 1px solid var(--border-color);
-            padding: 10px;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            position: relative;
-        }
-
-        .task-item .delete-btn {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: transparent;
-            border: none;
-            color: var(--accent);
-            cursor: pointer;
-        }
-
-        body[dir="rtl"] .task-item .delete-btn {
-            right: auto;
-            left: 5px;
-        }
-
-        .assignee-badge {
-            display: inline-block;
-            background: rgba(255, 0, 60, 0.1);
-            color: var(--accent);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            margin-top: 5px;
-        }
-
-        /* --- Financial Ledger --- */
-        .ledger-summary {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .summary-card {
-            padding: 1.5rem;
-            text-align: center;
-            border-radius: 12px;
-        }
-
-        .summary-card.profit { color: #00ff66; border: 1px solid rgba(0,255,102,0.3); }
-        .summary-card.expense { color: #ff3333; border: 1px solid rgba(255,51,51,0.3); }
-
-        .ledger-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-
-        .ledger-table th, .ledger-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        body[dir="rtl"] .ledger-table th, body[dir="rtl"] .ledger-table td {
-            text-align: right;
-        }
-
-        /* --- Auth Modal --- */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            padding: 2.5rem;
-            max-width: 400px;
-            width: 100%;
-            text-align: center;
-        }
-
-        /* --- Multi-language support --- */
-        [data-lang="en"] .lang-ar, [data-lang="ar"] .lang-en { display: none; }
-    </style>
+  @media (max-width:640px){
+    .sidebar{width:64px;}
+    .navbtn{width:52px;font-size:9px;}
+    main{padding:16px;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;}
+  }
+</style>
 </head>
-<body data-lang="en" dir="ltr">
+<body>
+<div class="bg-orbs" aria-hidden="true">
+  <span class="orb o1"></span>
+  <span class="orb o2"></span>
+  <span class="orb o3"></span>
+  <span class="orb o4"></span>
+  <span class="orb o5"></span>
+</div>
 
-    <header class="glass-panel">
-        <div class="logo-container">
-            <img src="./logo.png" alt="fekro Logo" class="dynamic-logo" onerror="this.style.display='none';">
-            <div class="logo-text">fekro<span>.</span></div>
+<div class="lock-screen" id="lock-screen">
+  <div class="lock-box">
+    <span class="capsule"></span>
+    <h2>جلوبال فارما</h2>
+    <p>نظام إدارة الصيدلية الخاص بـ ياسر الشيشيني — أدخل كلمة المرور للدخول</p>
+    <input type="password" id="lock-pass" placeholder="كلمة المرور" autocomplete="off">
+    <label class="lock-check"><input type="checkbox" id="lock-show"> إظهار كلمة المرور</label>
+    <div class="err" id="lock-err"></div>
+    <button class="btn-primary" type="button" id="lock-btn">دخول</button>
+  </div>
+</div>
+
+<div id="app" hidden>
+  <nav class="sidebar">
+    <div class="brand"><span class="capsule"></span></div>
+    <button class="navbtn active" data-page="dashboard"><span class="ic">📊</span>الرئيسية</button>
+    <button class="navbtn" data-page="products"><span class="ic">💊</span>الأصناف</button>
+    <button class="navbtn" data-page="import"><span class="ic">📥</span>استيراد</button>
+    <button class="navbtn" data-page="search"><span class="ic">🔎</span>بحث</button>
+  </nav>
+
+  <main>
+    <!-- DASHBOARD -->
+    <section id="page-dashboard">
+      <h1>لوحة التحكم</h1>
+      <p class="subtitle">جلوبال فارما — يعمل بدون إنترنت، والبيانات محفوظة على جهازك</p>
+      <div class="grid-stats" id="stats">
+        <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+      </div>
+      <div class="panel">
+        <h2><span class="capsule"></span> أدوية قريبة من الانتهاء (٩٠ يوم)</h2>
+        <div class="table-wrap"><table><thead><tr><th>الاسم</th><th>الباركود</th><th>الكمية</th><th>الانتهاء</th></tr></thead>
+        <tbody id="tbl-expiry"></tbody></table></div>
+      </div>
+      <div class="panel">
+        <h2><span class="capsule"></span> أدوية أوشكت على النفاد</h2>
+        <div class="table-wrap"><table><thead><tr><th>الاسم</th><th>الباركود</th><th>الكمية</th></tr></thead>
+        <tbody id="tbl-lowstock"></tbody></table></div>
+      </div>
+    </section>
+
+    <!-- PRODUCTS -->
+    <section id="page-products" hidden>
+      <h1>إدارة الأصناف</h1>
+      <p class="subtitle">إضافة، تعديل، وحذف الأدوية</p>
+      <div class="panel">
+        <h2>➕ إضافة صنف جديد</h2>
+        <form id="add-form">
+          <div class="row">
+            <div class="field"><label>اسم الدواء *</label><input id="f-name" required></div>
+            <div class="field"><label>الباركود</label><input id="f-barcode"></div>
+          </div>
+          <div class="row">
+            <div class="field"><label>الكمية</label><input id="f-qty" type="number" min="0" value="0"></div>
+            <div class="field"><label>الشركة المصنعة</label><input id="f-manu"></div>
+          </div>
+          <div class="row">
+            <div class="field"><label>سعر الشراء</label><input id="f-pp" type="number" step="0.01" min="0" value="0"></div>
+            <div class="field"><label>سعر البيع</label><input id="f-sp" type="number" step="0.01" min="0" value="0"></div>
+          </div>
+          <div class="row">
+            <div class="field"><label>تاريخ الانتهاء</label><input id="f-exp" type="date"></div>
+          </div>
+          <button class="btn-primary" type="submit">حفظ الصنف</button>
+        </form>
+      </div>
+      <div class="panel">
+        <h2>📋 كل الأصناف</h2>
+        <input id="products-filter" placeholder="فلترة سريعة بالاسم أو الباركود..." style="margin-bottom:10px;">
+        <div class="table-wrap"><table><thead><tr>
+          <th>الاسم</th><th>الباركود</th><th>الكمية</th><th>الشراء</th><th>البيع</th><th>الانتهاء</th><th></th>
+        </tr></thead><tbody id="tbl-products"></tbody></table></div>
+        <div class="pager" id="products-pager"></div>
+      </div>
+    </section>
+
+    <!-- IMPORT -->
+    <section id="page-import" hidden>
+      <h1>رفع بيانات ضخمة</h1>
+      <p class="subtitle">ارفع ملف CSV يحتوي على آلاف الأصناف دفعة واحدة</p>
+      <div class="panel">
+        <p style="font-size:13px;color:var(--ink-soft)">الأعمدة المطلوبة:</p>
+        <code style="direction:ltr;display:block;background:var(--primary-tint);padding:8px;border-radius:8px;font-family:var(--font-mono);font-size:12px;">
+        name, barcode, quantity, purchase_price, sale_price, expiry_date, manufacturer</code>
+        <div style="margin-top:14px;"><input type="file" id="csv-file" accept=".csv"></div>
+        <div id="import-preview"></div>
+      </div>
+    </section>
+
+    <!-- SEARCH -->
+    <section id="page-search" hidden>
+      <h1>بحث وجرد</h1>
+      <div class="panel">
+        <div class="row">
+          <div class="field"><label>بحث بالاسم أو الباركود</label><input id="s-query"></div>
+          <div class="field"><label>فلترة</label>
+            <select id="s-filter">
+              <option value="all">الكل</option>
+              <option value="expiry">قريبة الانتهاء</option>
+              <option value="low">أوشكت على النفاد</option>
+              <option value="expired">منتهية الصلاحية</option>
+            </select>
+          </div>
         </div>
-        <div class="nav-controls">
-            <button class="btn-icon" onclick="toggleTheme()"><i class="fa-solid fa-moon"></i></button>
-            <button class="btn-icon" onclick="toggleLanguage()"><span class="lang-en">العربية</span><span class="lang-ar">English</span></button>
-            <button class="btn-prime" id="portal-nav-btn" onclick="handlePortalNavigation()">
-                <i class="fa-solid fa-lock"></i> 
-                <span class="lang-en">Admin Portal</span><span class="lang-ar">لوحة التحكم</span>
-            </button>
+        <p style="font-size:12px;color:var(--ink-soft)" id="search-count"></p>
+        <div class="table-wrap"><table><thead><tr>
+          <th>الاسم</th><th>الباركود</th><th>الكمية</th><th>البيع</th><th>الانتهاء</th><th>الشركة</th>
+        </tr></thead><tbody id="tbl-search"></tbody></table></div>
+        <div class="pager" id="search-pager"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="modal-root"></div>
+
+<script>
+/* ---------------- Global error safety net ----------------
+   If anything throws anywhere in this script, show it on screen
+   instead of failing silently — makes bugs reportable/fixable. */
+window.addEventListener('error', function(e){
+  var el = document.getElementById('fatal-error');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'fatal-error';
+    document.body.prepend(el);
+  }
+  el.textContent = 'حصل خطأ برمجي: ' + e.message + ' (سطر ' + e.lineno + ') — ابعت لقطة شاشة لهذه الرسالة';
+});
+
+document.addEventListener('DOMContentLoaded', function(){
+
+/* ---------------- Offline persistent storage (IndexedDB) ----------------
+   Data is saved on-device via the browser's built-in IndexedDB, so it
+   survives closing the app/browser and needs no internet connection. */
+const DB_NAME = 'pharmacy_erp_db';
+const STORE = 'medicines';
+let db = null;
+let medicines = [];
+const PAGE_SIZE = 50;
+let productsPage = 1, searchPage = 1;
+
+function openDB(){
+  return new Promise((resolve, reject)=>{
+    if(!window.indexedDB){ reject(new Error('المتصفح ده مش بيدعم التخزين المحلي (IndexedDB)')); return; }
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = e=>{
+      const database = e.target.result;
+      if(!database.objectStoreNames.contains(STORE)){
+        database.createObjectStore(STORE, {keyPath:'id'});
+      }
+    };
+    req.onsuccess = e=>resolve(e.target.result);
+    req.onerror = e=>reject(e.target.error);
+  });
+}
+
+function dbGetAll(){
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction(STORE, 'readonly');
+    const req = tx.objectStore(STORE).getAll();
+    req.onsuccess = ()=>resolve(req.result);
+    req.onerror = ()=>reject(req.error);
+  });
+}
+function dbPut(med){
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction(STORE, 'readwrite');
+    tx.objectStore(STORE).put(med);
+    tx.oncomplete = ()=>resolve();
+    tx.onerror = ()=>reject(tx.error);
+  });
+}
+function dbPutMany(meds){
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction(STORE, 'readwrite');
+    const store = tx.objectStore(STORE);
+    meds.forEach(m=>store.put(m));
+    tx.oncomplete = ()=>resolve();
+    tx.onerror = ()=>reject(tx.error);
+  });
+}
+function dbDelete(id){
+  return new Promise((resolve, reject)=>{
+    const tx = db.transaction(STORE, 'readwrite');
+    tx.objectStore(STORE).delete(id);
+    tx.oncomplete = ()=>resolve();
+    tx.onerror = ()=>reject(tx.error);
+  });
+}
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function daysFromNow(n){ const d=new Date(); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.remove('show'); void t.offsetWidth; t.classList.add('show');
+  clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+function animateValue(el, end){
+  const isMoney = end > 1000;
+  let start = 0;
+  const duration = 700;
+  const startTime = performance.now();
+  function step(now){
+    const progress = Math.min((now-startTime)/duration, 1);
+    const eased = 1 - Math.pow(1-progress, 3);
+    const current = start + (end-start)*eased;
+    el.textContent = isMoney ? Math.round(current).toLocaleString() : Math.round(current).toLocaleString();
+    if(progress<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+/* ---------------- Navigation ---------------- */
+document.querySelectorAll('.navbtn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('main > section').forEach(s=>s.hidden=true);
+    const target = document.getElementById('page-'+btn.dataset.page);
+    target.hidden=false;
+    target.style.animation='none'; void target.offsetWidth; target.style.animation='';
+    if(btn.dataset.page==='dashboard') renderDashboard();
+    if(btn.dataset.page==='products') renderProducts();
+    if(btn.dataset.page==='search') renderSearch();
+  });
+});
+
+/* ---------------- Dashboard ---------------- */
+function renderDashboard(){
+  const total = medicines.length;
+  let purchaseVal=0, saleVal=0, expiredCount=0;
+  const today = todayISO();
+  medicines.forEach(m=>{
+    purchaseVal += m.quantity*m.purchasePrice;
+    saleVal += m.quantity*m.salePrice;
+    if(m.expiryDate && m.expiryDate < today) expiredCount++;
+  });
+
+  document.getElementById('stats').innerHTML = `
+    <div class="stat-card"><div class="label">إجمالي عدد الأصناف</div><div class="value" id="v-total">0</div></div>
+    <div class="stat-card"><div class="label">قيمة المخزون (شراء)</div><div class="value" id="v-purchase">0</div></div>
+    <div class="stat-card"><div class="label">قيمة المخزون (بيع)</div><div class="value" id="v-sale">0</div></div>
+    <div class="stat-card alert"><div class="label">أدوية منتهية</div><div class="value" id="v-expired">0</div></div>
+  `;
+  animateValue(document.getElementById('v-total'), total);
+  animateValue(document.getElementById('v-purchase'), Math.round(purchaseVal));
+  animateValue(document.getElementById('v-sale'), Math.round(saleVal));
+  animateValue(document.getElementById('v-expired'), expiredCount);
+
+  const soonMax = daysFromNow(90);
+  const nearExpiry = medicines.filter(m=>m.expiryDate && m.expiryDate>=today && m.expiryDate<=soonMax)
+    .sort((a,b)=>a.expiryDate.localeCompare(b.expiryDate)).slice(0,200);
+  document.getElementById('tbl-expiry').innerHTML = nearExpiry.map(m=>`
+    <tr><td>${escapeHtml(m.name)}</td><td class="mono">${m.barcode||'—'}</td><td class="mono">${m.quantity}</td><td class="mono">${m.expiryDate}</td></tr>
+  `).join('') || emptyRow(4,'لا توجد أدوية قريبة الانتهاء');
+
+  const lowStock = medicines.filter(m=>m.quantity<20).sort((a,b)=>a.quantity-b.quantity).slice(0,200);
+  document.getElementById('tbl-lowstock').innerHTML = lowStock.map(m=>`
+    <tr><td>${escapeHtml(m.name)}</td><td class="mono">${m.barcode||'—'}</td><td class="mono">${m.quantity}</td></tr>
+  `).join('') || emptyRow(3,'لا توجد أدوية أوشكت على النفاد');
+}
+
+function emptyRow(colspan,msg){
+  return `<tr><td colspan="${colspan}" style="text-align:center;color:var(--ink-soft);padding:16px;">${msg}</td></tr>`;
+}
+function escapeHtml(s){
+  return String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ---------------- Products page ---------------- */
+document.getElementById('add-form').addEventListener('submit', e=>{
+  e.preventDefault();
+  const name = document.getElementById('f-name').value.trim();
+  if(!name){ toast('اسم الدواء مطلوب'); return; }
+  const barcode = document.getElementById('f-barcode').value.trim();
+  if(barcode && medicines.some(m=>m.barcode===barcode)){ toast('هذا الباركود مستخدم بالفعل'); return; }
+
+  const newMed = {
+    id: uid(), name, barcode: barcode||null,
+    quantity: Number(document.getElementById('f-qty').value)||0,
+    purchasePrice: Number(document.getElementById('f-pp').value)||0,
+    salePrice: Number(document.getElementById('f-sp').value)||0,
+    expiryDate: document.getElementById('f-exp').value || null,
+    manufacturer: document.getElementById('f-manu').value.trim()||null,
+  };
+  medicines.push(newMed);
+  dbPut(newMed);
+  e.target.reset();
+  document.getElementById('f-exp').value = todayISO();
+  toast('تمت إضافة الصنف وحُفظت على الجهاز');
+  productsPage=1;
+  renderProducts();
+});
+
+document.getElementById('products-filter').addEventListener('input', ()=>{ productsPage=1; renderProducts(); });
+
+function renderProducts(){
+  const q = document.getElementById('products-filter').value.trim().toLowerCase();
+  let list = medicines;
+  if(q) list = list.filter(m => m.name.toLowerCase().includes(q) || (m.barcode||'').includes(q));
+
+  const totalPages = Math.max(1, Math.ceil(list.length/PAGE_SIZE));
+  productsPage = Math.min(productsPage, totalPages);
+  const start = (productsPage-1)*PAGE_SIZE;
+  const pageItems = list.slice(start, start+PAGE_SIZE);
+
+  document.getElementById('tbl-products').innerHTML = pageItems.map(m=>`
+    <tr>
+      <td>${escapeHtml(m.name)}</td>
+      <td class="mono">${m.barcode||'—'}</td>
+      <td class="mono">${m.quantity}</td>
+      <td class="mono">${m.purchasePrice.toFixed(2)}</td>
+      <td class="mono">${m.salePrice.toFixed(2)}</td>
+      <td class="mono">${m.expiryDate||'—'}</td>
+      <td><button class="btn-sm btn-ghost" onclick="window.__openEdit('${m.id}')">تعديل</button>
+          <button class="btn-sm btn-danger" onclick="window.__deleteMed('${m.id}')">حذف</button></td>
+    </tr>
+  `).join('') || emptyRow(7,'لا توجد أصناف بعد');
+
+  document.getElementById('products-pager').innerHTML = `
+    <span>${list.length.toLocaleString()} صنف — صفحة ${productsPage} من ${totalPages}</span>
+    <span>
+      <button ${productsPage<=1?'disabled':''} onclick="window.__prevProductsPage()">السابق</button>
+      <button ${productsPage>=totalPages?'disabled':''} onclick="window.__nextProductsPage()">التالي</button>
+    </span>`;
+}
+window.__prevProductsPage = ()=>{ productsPage--; renderProducts(); };
+window.__nextProductsPage = ()=>{ productsPage++; renderProducts(); };
+
+window.__deleteMed = function(id){
+  medicines = medicines.filter(m=>m.id!==id);
+  dbDelete(id);
+  toast('تم حذف الصنف');
+  renderProducts();
+};
+
+window.__openEdit = function(id){
+  const m = medicines.find(x=>x.id===id);
+  if(!m) return;
+  const root = document.getElementById('modal-root');
+  root.innerHTML = `
+    <div class="modal-backdrop" onclick="if(event.target===this) this.remove()">
+      <div class="modal">
+        <h3>تعديل: ${escapeHtml(m.name)}</h3>
+        <div class="row"><div class="field"><label>الاسم</label><input id="e-name" value="${escapeHtml(m.name)}"></div></div>
+        <div class="row"><div class="field"><label>الباركود</label><input id="e-barcode" value="${escapeHtml(m.barcode||'')}"></div></div>
+        <div class="row">
+          <div class="field"><label>الكمية</label><input id="e-qty" type="number" value="${m.quantity}"></div>
+          <div class="field"><label>الشركة</label><input id="e-manu" value="${escapeHtml(m.manufacturer||'')}"></div>
         </div>
-    </header>
-
-    <main id="public-view" class="view-section active">
-        <section class="hero">
-            <h1 class="lang-en">We Design the <span>Digital</span> Future</h1>
-            <h1 class="lang-ar">نحن نصمم المستقبل <span>الرقمي</span></h1>
-            <p class="lang-en">Exclusive high-end digital solutions crafted for elite enterprises. Innovation meets absolute luxury.</p>
-            <p class="lang-ar">حلول رقمية راقية مصممة خصيصاً للمؤسسات النخبوية. الابتكار يلتقي بالفخامة المطلقة.</p>
-        </section>
-
-        <section class="grid-container">
-            <div class="card glass-panel">
-                <i class="fa-solid fa-bezier-curve"></i>
-                <h3 class="lang-en">UI/UX Crafting</h3><h3 class="lang-ar">تصميم واجهات الاستخدام</h3>
-                <p class="lang-en">Elite user experiences.</p><p class="lang-ar">خبرات مستخدم نخبوية.</p>
-            </div>
-            <div class="card glass-panel">
-                <i class="fa-solid fa-eye"></i>
-                <h3 class="lang-en">Visual Branding</h3><h3 class="lang-ar">الهوية البصرية</h3>
-                <p class="lang-en">Unforgettable brand identities.</p><p class="lang-ar">هويات تجارية لا تُنسى.</p>
-            </div>
-            <div class="card glass-panel">
-                <i class="fa-solid fa-wand-magic-sparkles"></i>
-                <h3 class="lang-en">Motion Design</h3><h3 class="lang-ar">موشن ديزاين</h3>
-                <p class="lang-en">Fluid programmatic animations.</p><p class="lang-ar">تحريكات برمجية سلسة.</p>
-            </div>
-        </section>
-    </main>
-
-    <main id="admin-view" class="view-section">
-        <div class="admin-grid">
-            <aside class="admin-sidebar glass-panel">
-                <button class="sidebar-btn active" onclick="switchTab('tasks')"><i class="fa-solid fa-list-check"></i> <span class="lang-en">Tasks Matrix</span><span class="lang-ar">مصفوفة المهام</span></button>
-                <button class="sidebar-btn" onclick="switchTab('memo')"><i class="fa-solid fa-vault"></i> <span class="lang-en">Internal Memo</span><span class="lang-ar">المذكرة السرية</span></button>
-                <button class="sidebar-btn" onclick="switchTab('finance')"><i class="fa-solid fa-wallet"></i> <span class="lang-en">Financial Ledger</span><span class="lang-ar">الجرد المالي</span></button>
-                <button class="sidebar-btn" onclick="logoutAdmin()" style="margin-top:auto; color:var(--accent);"><i class="fa-solid fa-right-from-bracket"></i> <span class="lang-en">Exit Portal</span><span class="lang-ar">خروج</span></button>
-            </aside>
-
-            <section class="admin-main-content">
-                <div id="tab-tasks" class="admin-tab-content active glass-panel" style="padding: 2rem;">
-                    <h2 class="lang-en">Tasks Matrix Deployment</h2><h2 class="lang-ar">نظام إسناد المهام العملياتية</h2>
-                    <form id="task-form" onsubmit="addTask(event)" style="margin-top:1.5rem; display:flex; gap:10px; flex-wrap:wrap;">
-                        <input type="text" id="task-title" class="form-control" placeholder="Task description..." style="flex:2; min-width:200px;" required>
-                        <select id="task-day" class="form-control" style="flex:1; min-width:130px;">
-                            <option value="sat">Saturday / السبت</option>
-                            <option value="sun">Sunday / الأحد</option>
-                            <option value="mon">Monday / الإثنين</option>
-                            <option value="tue">Tuesday / الثلاثاء</option>
-                            <option value="wed">Wednesday / الأربعاء</option>
-                            <option value="thu">Thursday / الخميس</option>
-                        </select>
-                        <select id="task-assignee" class="form-control" style="flex:1; min-width:130px;">
-                            <option value="أدام">Adam / أدام</option>
-                            <option value="عمر موسى">Omar Mousa / عمر موسى</option>
-                            <option value="رحمة">Rahma / رحمة</option>
-                            <option value="جنى">Jana / جنى</option>
-                        </select>
-                        <button type="submit" class="btn-prime"><i class="fa-solid fa-plus"></i></button>
-                    </form>
-                    <div class="matrix-grid" id="matrix-container"></div>
-                </div>
-
-                <div id="tab-memo" class="admin-tab-content glass-panel" style="padding: 2rem;">
-                    <h2 class="lang-en">Directors Cryptographic Memo</h2><h2 class="lang-ar">نوتة الملاحظات السرية للمديرين</h2>
-                    <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1rem;">Authorized personnel only: Omar & Khaled</p>
-                    <textarea id="internal-memo-area" class="form-control" rows="12" placeholder="Write corporate directives here..." oninput="saveMemo()"></textarea>
-                </div>
-
-                <div id="tab-finance" class="admin-tab-content glass-panel" style="padding: 2rem;">
-                    <h2 class="lang-en">Financial Ledger Reporting</h2><h2 class="lang-ar">نظام الجرد المالي السنوي</h2>
-                    <div class="ledger-summary" style="margin-top:1.5rem;">
-                        <div class="glass-panel summary-card"><h4 class="lang-en">Total Revenue</h4><h4 class="lang-ar">إجمالي الإيرادات</h4><p id="fin-rev">$0</p></div>
-                        <div class="glass-panel summary-card expense"><h4 class="lang-en">Total Expenses</h4><h4 class="lang-ar">إجمالي المصروفات</h4><p id="fin-exp">$0</p></div>
-                        <div class="glass-panel summary-card profit"><h4 class="lang-en">Net Operating Profit</h4><h4 class="lang-ar">صافي الربح</h4><p id="fin-net">$0</p></div>
-                    </div>
-                    <form id="ledger-form" onsubmit="addLedgerEntry(event)" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:2rem;">
-                        <input type="text" id="entry-desc" class="form-control" placeholder="Item description..." style="flex:2; min-width:200px;" required>
-                        <input type="number" id="entry-amount" class="form-control" placeholder="Amount" style="flex:1; min-width:100px;" required>
-                        <select id="entry-type" class="form-control" style="flex:1; min-width:120px;">
-                            <option value="revenue">Revenue / إيراد</option>
-                            <option value="expense">Expense / مصروف</option>
-                        </select>
-                        <button type="submit" class="btn-prime"><i class="fa-solid fa-check"></i></button>
-                    </form>
-                    <table class="ledger-table">
-                        <thead>
-                            <tr><th class="lang-en">Description</th><th class="lang-ar">البيان</th><th class="lang-en">Type</th><th class="lang-ar">النوع</th><th class="lang-en">Amount</th><th class="lang-ar">القيمة</th><th class="lang-en">Action</th><th class="lang-ar">إجراء</th></tr>
-                        </thead>
-                        <tbody id="ledger-rows"></tbody>
-                    </table>
-                </div>
-            </section>
+        <div class="row">
+          <div class="field"><label>سعر الشراء</label><input id="e-pp" type="number" step="0.01" value="${m.purchasePrice}"></div>
+          <div class="field"><label>سعر البيع</label><input id="e-sp" type="number" step="0.01" value="${m.salePrice}"></div>
         </div>
-    </main>
-
-    <div id="auth-modal" class="modal">
-        <div class="modal-content glass-panel">
-            <i class="fa-solid fa-shield-halved" style="font-size:3rem; color:var(--accent); margin-bottom:1rem;"></i>
-            <h3 class="lang-en">Cryptographic Authentication</h3><h3 class="lang-ar">نظام التحقق الأمني</h3>
-            <p style="color:var(--text-muted); font-size:0.85rem; margin: 10px 0 20px;" class="lang-en">Enter Administrative Passcode</p>
-            <p style="color:var(--text-muted); font-size:0.85rem; margin: 10px 0 20px;" class="lang-ar">أدخل كلمة المرور الإدارية المشفرة</p>
-            <input type="password" id="portal-password" class="form-control" style="text-align:center; letter-spacing:4px;" placeholder="••••••••">
-            <div style="display:flex; gap:10px; margin-top:20px;">
-                <button class="btn-icon" style="flex:1;" onclick="closeAuthModal()">Cancel</button>
-                <button class="btn-prime" style="flex:1;" onclick="verifyGatekeeperKey()">Verify</button>
-            </div>
+        <div class="row"><div class="field"><label>الانتهاء</label><input id="e-exp" type="date" value="${m.expiryDate||''}"></div></div>
+        <div class="row" style="justify-content:flex-end;">
+          <button class="btn-ghost" type="button" onclick="document.querySelector('.modal-backdrop').remove()">إلغاء</button>
+          <button class="btn-primary" type="button" onclick="window.__saveEdit('${id}')">حفظ التعديلات</button>
         </div>
-    </div>
+      </div>
+    </div>`;
+};
 
-    <script>
-        /* --- Cryptographic System State & Memory Engine --- */
-        const GATEKEEPER_KEY = "f3kro";
-        let tasks = JSON.parse(localStorage.getItem('fekro_tasks')) || [];
-        let ledger = JSON.parse(localStorage.getItem('fekro_ledger')) || [];
+window.__saveEdit = function(id){
+  const m = medicines.find(x=>x.id===id);
+  if(!m) return;
+  m.name = document.getElementById('e-name').value.trim() || m.name;
+  m.barcode = document.getElementById('e-barcode').value.trim() || null;
+  m.quantity = Number(document.getElementById('e-qty').value)||0;
+  m.manufacturer = document.getElementById('e-manu').value.trim()||null;
+  m.purchasePrice = Number(document.getElementById('e-pp').value)||0;
+  m.salePrice = Number(document.getElementById('e-sp').value)||0;
+  m.expiryDate = document.getElementById('e-exp').value || null;
+  dbPut(m);
+  document.querySelector('.modal-backdrop').remove();
+  toast('تم التحديث وحُفظ على الجهاز');
+  renderProducts();
+};
 
-        const daysMapping = {
-            en: { sat: 'Saturday', sun: 'Sunday', mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thu: 'Thursday' },
-            ar: { sat: 'السبت', sun: 'الأحد', mon: 'الإثنين', tue: 'الثلاثاء', wed: 'الأربعاء', thu: 'الخميس' }
-        };
+/* ---------------- Bulk import (built-in offline CSV parser, no CDN needed) ---------------- */
+function parseCSV(text){
+  const rows = [];
+  let i=0, field='', row=[], inQuotes=false;
+  while(i<text.length){
+    const c = text[i];
+    if(inQuotes){
+      if(c === '"'){
+        if(text[i+1] === '"'){ field+='"'; i+=2; continue; }
+        inQuotes=false; i++; continue;
+      }
+      field+=c; i++; continue;
+    } else {
+      if(c === '"'){ inQuotes=true; i++; continue; }
+      if(c === ','){ row.push(field); field=''; i++; continue; }
+      if(c === '\r'){ i++; continue; }
+      if(c === '\n'){ row.push(field); rows.push(row); row=[]; field=''; i++; continue; }
+      field+=c; i++; continue;
+    }
+  }
+  if(field.length || row.length){ row.push(field); rows.push(row); }
+  if(!rows.length) return {header:[], data:[]};
+  const header = rows[0].map(h=>h.trim().toLowerCase());
+  const data = rows.slice(1)
+    .filter(r=>r.length>1 || (r.length===1 && r[0]!==''))
+    .map(r=>{
+      const obj={};
+      header.forEach((h,idx)=>obj[h]=(r[idx]!==undefined?r[idx]:'').trim());
+      return obj;
+    });
+  return {header, data};
+}
 
-        window.addEventListener('DOMContentLoaded', () => {
-            sessionStorage.removeItem('fekro_admin_session');
-            renderTasksMatrix();
-            renderLedger();
-            loadMemo();
-        });
+document.getElementById('csv-file').addEventListener('change', function(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const preview = document.getElementById('import-preview');
+  preview.innerHTML = `<p style="font-size:13px;color:var(--ink-soft)">جاري التحليل...</p>`;
 
-        /* --- UI Experience Controllers --- */
-        function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const targetTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            document.documentElement.setAttribute('data-theme', targetTheme);
-            const icon = document.querySelector('.btn-icon i');
-            icon.className = targetTheme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
-        }
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    let parsed;
+    try{
+      parsed = parseCSV(ev.target.result);
+    }catch(err){
+      preview.innerHTML = `<p style="color:var(--red)">تعذّر قراءة الملف: ${err}</p>`;
+      return;
+    }
+    const rows = parsed.data;
+    const required = ['name','quantity','purchase_price','sale_price'];
+    const missing = required.filter(c=>!parsed.header.includes(c));
+    if(missing.length){
+      preview.innerHTML = `<p style="color:var(--red)">أعمدة ناقصة: ${missing.join(', ')}</p>`;
+      return;
+    }
+    preview.innerHTML = `
+      <p style="font-size:13px;">تم العثور على <b>${rows.length.toLocaleString()}</b> صف.</p>
+      <button class="btn-primary" type="button" id="do-import">📥 استيراد الآن</button>
+      <div id="import-progress" style="margin-top:10px;font-size:12px;color:var(--ink-soft);"></div>`;
+    document.getElementById('do-import').addEventListener('click', function(){
+      importRows(rows);
+    });
+  };
+  reader.onerror = function(){
+    preview.innerHTML = `<p style="color:var(--red)">تعذّر قراءة الملف.</p>`;
+  };
+  reader.readAsText(file, 'UTF-8');
+});
 
-        function toggleLanguage() {
-            const currentLang = document.body.getAttribute('data-lang');
-            const targetLang = currentLang === 'en' ? 'ar' : 'en';
-            document.body.setAttribute('data-lang', targetLang);
-            document.body.setAttribute('dir', targetLang === 'ar' ? 'rtl' : 'ltr');
-            renderTasksMatrix(); 
-        }
+function importRows(rows){
+  const progress = document.getElementById('import-progress');
+  const existingBarcodes = new Set(medicines.filter(m=>m.barcode).map(m=>m.barcode));
+  let added=0, skipped=0, i=0;
+  const CHUNK=1000;
 
-        function handlePortalNavigation() {
-            if (sessionStorage.getItem('fekro_admin_session') === 'active') {
-                switchView('admin');
-            } else {
-                openAuthModal();
-            }
-        }
+  function step(){
+    const chunkEnd = Math.min(i+CHUNK, rows.length);
+    const batch = [];
+    for(; i<chunkEnd; i++){
+      const norm = rows[i];
+      const name = (norm.name||'').toString().trim();
+      if(!name){ skipped++; continue; }
+      const barcode = norm.barcode ? String(norm.barcode).trim() : null;
+      if(barcode && existingBarcodes.has(barcode)){ skipped++; continue; }
+      if(barcode) existingBarcodes.add(barcode);
 
-        function openAuthModal() { document.getElementById('auth-modal').style.display = 'flex'; document.getElementById('portal-password').focus(); }
-        function closeAuthModal() { document.getElementById('auth-modal').style.display = 'none'; document.getElementById('portal-password').value = ''; }
+      const med = {
+        id: uid(), name, barcode,
+        quantity: parseInt(norm.quantity)||0,
+        purchasePrice: parseFloat(norm.purchase_price)||0,
+        salePrice: parseFloat(norm.sale_price)||0,
+        expiryDate: norm.expiry_date ? String(norm.expiry_date).trim() : null,
+        manufacturer: norm.manufacturer ? String(norm.manufacturer).trim() : null,
+      };
+      medicines.push(med);
+      batch.push(med);
+      added++;
+    }
+    dbPutMany(batch);
+    progress.textContent = `تم استيراد ${Math.min(i,rows.length).toLocaleString()} من ${rows.length.toLocaleString()} وحُفظت على الجهاز...`;
+    if(i<rows.length){
+      setTimeout(step,0);
+    } else {
+      progress.textContent = `اكتمل: أُضيف ${added.toLocaleString()} صنف، تم تجاوز ${skipped.toLocaleString()} (مكرر/بدون اسم). كل البيانات محفوظة على جهازك.`;
+      toast('اكتمل الاستيراد والحفظ');
+    }
+  }
+  step();
+}
 
-        function verifyGatekeeperKey() {
-            const input = document.getElementById('portal-password').value;
-            if (input === GATEKEEPER_KEY) {
-                sessionStorage.setItem('fekro_admin_session', 'active');
-                closeAuthModal();
-                switchView('admin');
-            } else {
-                alert("🚨 Access Denied: Invalid Security Cryptokey.");
-                closeAuthModal();
-            }
-        }
+/* ---------------- Search & inventory ---------------- */
+document.getElementById('s-query').addEventListener('input', ()=>{ searchPage=1; renderSearch(); });
+document.getElementById('s-filter').addEventListener('change', ()=>{ searchPage=1; renderSearch(); });
 
-        function logoutAdmin() {
-            sessionStorage.removeItem('fekro_admin_session');
-            switchView('public');
-        }
+function renderSearch(){
+  const q = document.getElementById('s-query').value.trim().toLowerCase();
+  const filter = document.getElementById('s-filter').value;
+  const today = todayISO();
+  const soonMax = daysFromNow(90);
 
-        function switchView(view) {
-            document.getElementById('public-view').classList.remove('active');
-            document.getElementById('admin-view').classList.remove('active');
-            
-            if (view === 'admin' && sessionStorage.getItem('fekro_admin_session') === 'active') {
-                document.getElementById('admin-view').classList.add('active');
-                document.getElementById('portal-nav-btn').style.display = 'none';
-            } else {
-                document.getElementById('public-view').classList.add('active');
-                document.getElementById('portal-nav-btn').style.display = 'flex';
-            }
-        }
+  let list = medicines;
+  if(q) list = list.filter(m=>m.name.toLowerCase().includes(q) || (m.barcode||'').includes(q));
+  if(filter==='expiry') list = list.filter(m=>m.expiryDate && m.expiryDate>=today && m.expiryDate<=soonMax);
+  else if(filter==='low') list = list.filter(m=>m.quantity<20);
+  else if(filter==='expired') list = list.filter(m=>m.expiryDate && m.expiryDate<today);
 
-        function switchTab(tabId) {
-            document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
-            
-            event.currentTarget.classList.add('active');
-            document.getElementById(`tab-${tabId}`).classList.add('active');
-        }
+  document.getElementById('search-count').textContent = `${list.length.toLocaleString()} نتيجة`;
 
-        /* --- Operational Engine: Tasks Matrix --- */
-        function renderTasksMatrix() {
-            const container = document.getElementById('matrix-container');
-            container.innerHTML = '';
-            const lang = document.body.getAttribute('data-lang');
-            
-            Object.keys(daysMapping[lang]).forEach(dayKey => {
-                const dayColumn = document.createElement('div');
-                dayColumn.className = 'day-column glass-panel';
-                
-                let dayTasksHtml = '';
-                tasks.filter(t => t.day === dayKey).forEach(task => {
-                    dayTasksHtml += `
-                        <div class="task-item">
-                            <button class="delete-btn" onclick="deleteTask(${task.id})"><i class="fa-solid fa-trash-can"></i></button>
-                            <div style="font-size:0.95rem; font-weight:500; padding-right:15px;">${task.title}</div>
-                            <span class="assignee-badge">${task.assignee}</span>
-                        </div>`;
-                });
+  const totalPages = Math.max(1, Math.ceil(list.length/PAGE_SIZE));
+  searchPage = Math.min(searchPage, totalPages);
+  const start=(searchPage-1)*PAGE_SIZE;
+  const pageItems = list.slice(start,start+PAGE_SIZE);
 
-                dayColumn.innerHTML = `
-                    <div class="day-title">${daysMapping[lang][dayKey]}</div>
-                    <div class="tasks-list-wrapper">${dayTasksHtml}</div>
-                `;
-                container.appendChild(dayColumn);
-            });
-        }
+  document.getElementById('tbl-search').innerHTML = pageItems.map(m=>{
+    let tag='<span class="tag ok">سليم</span>';
+    if(m.expiryDate && m.expiryDate<today) tag='<span class="tag expired">منتهي</span>';
+    else if(m.expiryDate && m.expiryDate<=soonMax) tag='<span class="tag soon">قريب الانتهاء</span>';
+    else if(m.quantity<20) tag='<span class="tag low">مخزون منخفض</span>';
+    return `<tr>
+      <td>${escapeHtml(m.name)}</td><td class="mono">${m.barcode||'—'}</td>
+      <td class="mono">${m.quantity}</td><td class="mono">${m.salePrice.toFixed(2)}</td>
+      <td class="mono">${m.expiryDate||'—'} ${tag}</td><td>${escapeHtml(m.manufacturer||'—')}</td>
+    </tr>`;
+  }).join('') || emptyRow(6,'لا توجد نتائج');
 
-        function addTask(e) {
-            e.preventDefault();
-            const title = document.getElementById('task-title').value;
-            const day = document.getElementById('task-day').value;
-            const assignee = document.getElementById('task-assignee').value;
-            
-            tasks.push({ id: Date.now(), title, day, assignee });
-            localStorage.setItem('fekro_tasks', JSON.stringify(tasks));
-            renderTasksMatrix();
-            document.getElementById('task-form').reset();
-        }
+  document.getElementById('search-pager').innerHTML = `
+    <span>صفحة ${searchPage} من ${totalPages}</span>
+    <span>
+      <button ${searchPage<=1?'disabled':''} onclick="window.__prevSearchPage()">السابق</button>
+      <button ${searchPage>=totalPages?'disabled':''} onclick="window.__nextSearchPage()">التالي</button>
+    </span>`;
+}
+window.__prevSearchPage = ()=>{ searchPage--; renderSearch(); };
+window.__nextSearchPage = ()=>{ searchPage++; renderSearch(); };
 
-        function deleteTask(id) {
-            tasks = tasks.filter(t => t.id !== id);
-            localStorage.setItem('fekro_tasks', JSON.stringify(tasks));
-            renderTasksMatrix();
-        }
+/* ---------------- Access lock ---------------- */
+const ACCESS_PASSWORD = "yasser2024"; /* غيّرها هنا قبل ما تسلّم النظام للعميل */
 
-        /* --- Security Directive: Internal Memo --- */
-        function saveMemo() {
-            const text = document.getElementById('internal-memo-area').value;
-            localStorage.setItem('fekro_internal_memo', text);
-        }
-        function loadMemo() {
-            document.getElementById('internal-memo-area').value = localStorage.getItem('fekro_internal_memo') || '';
-        }
+document.getElementById('lock-show').addEventListener('change', function(){
+  document.getElementById('lock-pass').type = this.checked ? 'text' : 'password';
+});
 
-        /* --- Ledger Core Engine: Financials --- */
-        function renderLedger() {
-            const rowsContainer = document.getElementById('ledger-rows');
-            rowsContainer.innerHTML = '';
-            
-            let totalRev = 0; let totalExp = 0;
+function tryUnlock(){
+  const entered = document.getElementById('lock-pass').value.trim();
+  if(entered === ACCESS_PASSWORD){
+    document.getElementById('lock-screen').remove();
+    document.getElementById('app').hidden = false;
+    startApp();
+  } else {
+    document.getElementById('lock-err').textContent = 'كلمة مرور غير صحيحة';
+    document.getElementById('lock-pass').value = '';
+    document.getElementById('lock-pass').focus();
+  }
+}
+document.getElementById('lock-btn').addEventListener('click', tryUnlock);
+document.getElementById('lock-pass').addEventListener('keydown', function(e){
+  if(e.key === 'Enter'){ e.preventDefault(); tryUnlock(); }
+});
+document.getElementById('lock-pass').focus();
 
-            ledger.forEach(entry => {
-                const isRev = entry.type === 'revenue';
-                if(isRev) totalRev += parseFloat(entry.amount); else totalExp += parseFloat(entry.amount);
+function startApp(){
+  document.getElementById('f-exp').value = todayISO();
+  openDB().then(async database=>{
+    db = database;
+    medicines = await dbGetAll();
+    renderDashboard();
+  }).catch(err=>{
+    document.getElementById('stats').innerHTML = `<p style="color:var(--red);font-size:13px;">تعذّر فتح قاعدة البيانات المحلية: ${err.message||err}</p>`;
+  });
+}
 
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${entry.desc}</td>
-                    <td><span style="color:${isRev ? '#00ff66':'#ff3333'}">${entry.type.toUpperCase()}</span></td>
-                    <td>$${parseFloat(entry.amount).toLocaleString()}</td>
-                    <td><button class="btn-icon" style="padding:4px 8px; color:var(--accent);" onclick="deleteLedgerEntry(${entry.id})"><i class="fa-solid fa-xmark"></i></button></td>
-                `;
-                rowsContainer.appendChild(row);
-            });
-
-            const netProfit = totalRev - totalExp;
-            document.getElementById('fin-rev').innerText = `$${totalRev.toLocaleString()}`;
-            document.getElementById('fin-exp').innerText = `$${totalExp.toLocaleString()}`;
-            document.getElementById('fin-net').innerText = `$${netProfit.toLocaleString()}`;
-        }
-
-        function addLedgerEntry(e) {
-            e.preventDefault();
-            const desc = document.getElementById('entry-desc').value;
-            const amount = document.getElementById('entry-amount').value;
-            const type = document.getElementById('entry-type').value;
-
-            ledger.push({ id: Date.now(), desc, amount, type });
-            localStorage.setItem('fekro_ledger', JSON.stringify(ledger));
-            renderLedger();
-            document.getElementById('ledger-form').reset();
-        }
-
-        function deleteLedgerEntry(id) {
-            ledger = ledger.filter(e => e.id !== id);
-            localStorage.setItem('fekro_ledger', JSON.stringify(ledger));
-            renderLedger();
-        }
-    </script>
+}); // end DOMContentLoaded
+</script>
 </body>
-</html>
+  </html>  
